@@ -1,0 +1,9 @@
+transformers
+huggingface_hub
+datasets
+safetensors
+accelerate
+timm
+albumentations
+evaluate
+opencv-python
