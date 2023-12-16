@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 
-from calminet.data.file_ops import get_project_root, generate_random_filename
+from tools.data.file_ops import get_project_root, generate_random_filename
 
 
 def read_image(image_path, mode='rgb'):
@@ -25,15 +25,14 @@ def read_image(image_path, mode='rgb'):
         return image_array
 
 
-def save_image(image, save_path=None):
+def save_image(image, save_folder):
     """
     Save image to file.
     :param image: numpy.ndarray，image that read by opencv.
-    :param save_path: None for random generated path.
+    :param save_folder:
     :return:
     """
-    if save_path is None:
-        filename = generate_random_filename("img", "jpg")
-        save_path = os.path.join(get_project_root(), "test", filename)
+    filename = generate_random_filename("img", "jpg")
+    save_path = os.path.join(get_project_root(), save_folder, filename)
     cv2.imwrite(save_path, image)
     print(f"Saved to {save_path}.")

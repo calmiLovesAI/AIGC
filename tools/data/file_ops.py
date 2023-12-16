@@ -20,3 +20,13 @@ def generate_random_filename(file_type, postfix):
         case _:
             filename = f"{file_type}_{formatted_time}"
     return filename
+
+
+def create_directory_if_not_exists(directory_path):
+    # Check if the directory path exists
+    if not os.path.exists(directory_path):
+        # Create the directory and its parent directories if they don't exist
+        os.makedirs(directory_path)
+        print(f"Directory '{directory_path}' created successfully.")
+    else:
+        print(f"Directory '{directory_path}' already exists.")
