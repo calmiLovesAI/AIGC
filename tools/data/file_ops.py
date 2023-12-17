@@ -37,3 +37,4 @@ def get_absolute_path(relative_path):
     absolute_path = os.path.join(root_path, relative_path)  # Join paths
     return absolute_path
 
+

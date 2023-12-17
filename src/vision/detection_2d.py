@@ -4,6 +4,7 @@ from transformers import pipeline
 import os
 
 from tools.data.file_ops import create_directory_if_not_exists, get_absolute_path
+from tools.data.file_type import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
 from tools.data.image import save_image
 from tools.platform.device import get_device
 from tools.visualize.display import display_detection_results_on_image
@@ -67,7 +68,7 @@ def get_image_paths(image_path):
     :param image_path:
     :return:
     """
-    image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+    image_extensions = IMAGE_EXTENSIONS
     image_pattern = os.path.join(image_path, f'*.*')  # match all files under the specified path
 
     # Use the glob module to get all qualified file paths under a specified path.
@@ -86,8 +87,7 @@ def get_video_paths(video_path):
     :return:
     """
     # Supported video file extensions
-    video_extensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'mpeg',
-                        'mpg']  # Add more extensions if needed
+    video_extensions = VIDEO_EXTENSIONS  # Add more extensions if needed
 
     # Constructing the pattern to match video files
     video_pattern = os.path.join(video_path, '*.*')
