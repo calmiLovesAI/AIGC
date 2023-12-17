@@ -9,5 +9,5 @@ __pycache__
 /log/
 /python_test/
 /downloads/
-/experiments/
+/experiments/*
 !/experiments/config.py
