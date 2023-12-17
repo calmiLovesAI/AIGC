@@ -30,3 +30,10 @@ def create_directory_if_not_exists(directory_path):
         print(f"Directory '{directory_path}' created successfully.")
     else:
         print(f"Directory '{directory_path}' already exists.")
+
+
+def get_absolute_path(relative_path):
+    root_path = get_project_root()  # Get the absolute path of the project root directory
+    absolute_path = os.path.join(root_path, relative_path)  # Join paths
+    return absolute_path
+

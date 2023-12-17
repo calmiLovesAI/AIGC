@@ -3,7 +3,7 @@ import glob
 from transformers import pipeline
 import os
 
-from tools.data.file_ops import get_project_root, create_directory_if_not_exists
+from tools.data.file_ops import create_directory_if_not_exists, get_absolute_path
 from tools.data.image import save_image
 from tools.platform.device import get_device
 from tools.visualize.display import display_detection_results_on_image
@@ -11,7 +11,6 @@ from tools.visualize.display import display_detection_results_on_image
 
 class Detection2D:
     def __init__(self, cfg):
-        self.root_dir = get_project_root()
         self.device = get_device(type=cfg['device'])
 
     def _handle_image(self, model, image_path, output_path):
@@ -44,8 +43,8 @@ class Detection2D:
         :return:
         """
         # get absolute path
-        file_path = os.path.join(self.root_dir, file_path)
-        output_path = os.path.join(self.root_dir, output_path)
+        file_path = get_absolute_path(file_path)
+        output_path = get_absolute_path(output_path)
         create_directory_if_not_exists(output_path)
         match file_type:
             case 'img':
