@@ -7,3 +7,5 @@ timm
 albumentations
 evaluate
 opencv-python
+peft
+triton

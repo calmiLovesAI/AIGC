@@ -1,8 +1,9 @@
 import cv2
 import os
 import numpy as np
+from PIL import Image
 
-from tools.data.file_ops import get_project_root, generate_random_filename
+from tools.data.file_ops import get_project_root, generate_random_filename, create_directory_if_not_exists
 
 
 def read_image(image_path, mode='rgb'):
@@ -25,14 +26,23 @@ def read_image(image_path, mode='rgb'):
         return image_array
 
 
-def save_image(image, save_folder):
+def save_image(image, save_folder, filename=None):
     """
     Save image to file.
     :param image: numpy.ndarray，image that read by opencv.
     :param save_folder:
+    :param filename:
     :return:
     """
-    filename = generate_random_filename("img", "jpg")
+    if not filename:
+        filename = generate_random_filename("img", "png")
+    save_dir = os.path.join(get_project_root(), save_folder)
+    create_directory_if_not_exists(save_dir)
     save_path = os.path.join(get_project_root(), save_folder, filename)
-    cv2.imwrite(save_path, image)
+    if isinstance(image, np.ndarray):
+        cv2.imwrite(save_path, image)
+    elif isinstance(image, Image.Image):
+        image.save(fp=save_path)
+    else:
+        raise ValueError(f"Unsupported image type.")
     print(f"Saved to {save_path}.")

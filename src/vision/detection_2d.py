@@ -55,7 +55,12 @@ class Detection2D:
             case _:
                 raise ValueError(f"{file_type} is not supported.")
 
-    def train(self):
+    def train(self, model, dataset):
+        """
+        :param model: str
+        :param dataset: str
+        :return:
+        """
         pass
 
     def evaluate(self):

@@ -1,7 +1,6 @@
 
 
 project_cfg = dict(
-    hf_home_path="../HF_HUB",
     device="gpu",
 )
 
