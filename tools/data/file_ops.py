@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 
@@ -18,16 +19,19 @@ def generate_random_filename(file_type, suffix):
         case "img":
             filename = f"{file_type}_{formatted_time}.{suffix}"
         case _:
-            filename = f"{file_type}_{formatted_time}"
+            filename = f"{file_type}_{formatted_time}.{suffix}"
     return filename
 
 
 def create_directory_if_not_exists(directory_path):
+    if not os.path.isabs(directory_path):
+        directory_path = get_absolute_path(directory_path)
     # Check if the directory path exists
     if not os.path.exists(directory_path):
         # Create the directory and its parent directories if they don't exist
         os.makedirs(directory_path)
         print(f"Directory '{directory_path}' created successfully.")
+    return directory_path
 
 
 def get_absolute_path(relative_path):
@@ -36,3 +40,15 @@ def get_absolute_path(relative_path):
     return absolute_path
 
 
+def convert_prompt_to_filename(prompt, length=20):
+    """
+    This function takes a comma-separated string, converts it to an underscore-separated string,
+    and truncates it to the specified length (default is 20 characters).
+    """
+    # Split the string based on comma and join using underscore
+    converted_string = re.sub(r'[, ]+', '_', prompt)
+
+    # Truncate the string to the specified length
+    truncated_string = converted_string[:length]
+
+    return truncated_string

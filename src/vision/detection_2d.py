@@ -45,8 +45,7 @@ class Detection2D:
         """
         # get absolute path
         file_path = get_absolute_path(file_path)
-        output_path = get_absolute_path(output_path)
-        create_directory_if_not_exists(output_path)
+        output_path = create_directory_if_not_exists(output_path)
         match file_type:
             case 'img':
                 self._handle_image(model, file_path, output_path)
