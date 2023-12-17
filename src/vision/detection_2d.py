@@ -62,22 +62,25 @@ class Detection2D:
         pass
 
 
+def get_files(root_path, extensions):
+    file_pattern = os.path.join(root_path, f'*.*')  # match all files under the specified path
+
+    # Use the glob module to get all qualified file paths under a specified path.
+    files = glob.glob(file_pattern)
+
+    # Filter out file paths that match image file extensions.
+    out_file_paths = [file for file in files if file.lower().split('.')[-1] in extensions]
+
+    return out_file_paths
+
+
 def get_image_paths(image_path):
     """
     Get all image file paths under the image_path path.
     :param image_path:
     :return:
     """
-    image_extensions = IMAGE_EXTENSIONS
-    image_pattern = os.path.join(image_path, f'*.*')  # match all files under the specified path
-
-    # Use the glob module to get all qualified file paths under a specified path.
-    image_files = glob.glob(image_pattern)
-
-    # Filter out file paths that match image file extensions.
-    image_paths = [file for file in image_files if file.lower().split('.')[-1] in image_extensions]
-
-    return image_paths
+    return get_files(root_path=image_path, extensions=IMAGE_EXTENSIONS)
 
 
 def get_video_paths(video_path):
@@ -86,16 +89,4 @@ def get_video_paths(video_path):
     :param video_path:
     :return:
     """
-    # Supported video file extensions
-    video_extensions = VIDEO_EXTENSIONS  # Add more extensions if needed
-
-    # Constructing the pattern to match video files
-    video_pattern = os.path.join(video_path, '*.*')
-
-    # Getting all files in the specified path
-    video_files = glob.glob(video_pattern)
-
-    # Filtering the files based on video extensions
-    video_paths = [file for file in video_files if file.lower().split('.')[-1] in video_extensions]
-
-    return video_paths
+    return get_files(root_path=video_path, extensions=VIDEO_EXTENSIONS)
