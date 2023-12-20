@@ -1,6 +1,10 @@
-from src import initialize
+import argparse
+
+from experiments.config import project_cfg, txt2img_cfg
 from src.diffusion.stable_diffusion_v1_5 import get_stable_diffusion_v1_5_output
+from tools.config_parser import load_task_cfg
 from tools.data.file_ops import get_absolute_path
+from tools.platform.device import get_device
 
 
 def read_prompt(file_path):
@@ -24,7 +28,8 @@ def read_prompt(file_path):
 
 
 if __name__ == '__main__':
-    cfg = initialize()
-    prompt = read_prompt('experiments/prompt.txt')
-    print(f"The prompt is {prompt}")
-    get_stable_diffusion_v1_5_output(cfg, prompt, scheduler_name='dpm_solver_multistep', num_inference_steps=20)
+    cfg = load_task_cfg(project_cfg, txt2img_cfg)
+    device = get_device(cfg.device)
+    prompt = read_prompt(cfg.prompt_file)
+    print(f"The prompt is \n{prompt}")
+    get_stable_diffusion_v1_5_output(prompt, scheduler_name=cfg.scheduler, num_inference_steps=cfg.num_inference_steps, device=device)

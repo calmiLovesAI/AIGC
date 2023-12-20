@@ -32,17 +32,7 @@ def get_max_memory_gpu():
         return torch.device(f"cuda:{max_memory_index}")
 
 
-def set_seed_based_on_device(device_type):
-    if device_type == "gpu":
-        # If the device type is 'gpu', create a random number generator based on the GPU device and set the seed
-        generator = torch.Generator(device='cuda')
-        generator.manual_seed(
-            torch.cuda.current_device() or 0)  # Using the ID of the current GPU device or default to 0
-    elif device_type == "cpu":
-        # If the device type is 'cpu', create a random number generator based on the CPU and set the seed
-        generator = torch.Generator(device=device_type)
-        generator.manual_seed(0)  # Set the seed to 0
-    else:
-        raise ValueError("Unsupported device type. Please use 'gpu' or 'cpu'.")
-
+def set_seed_based_on_device(device):
+    generator = torch.Generator(device=device.type)
+    generator.manual_seed(0)  # Set the seed to 0
     return generator

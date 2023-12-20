@@ -40,6 +40,10 @@ def get_absolute_path(relative_path):
     return absolute_path
 
 
+def get_file_extension(file_path):
+    return os.path.splitext(file_path)[1]
+
+
 def convert_prompt_to_filename(prompt, length=20):
     """
     This function takes a comma-separated string, converts it to an underscore-separated string,

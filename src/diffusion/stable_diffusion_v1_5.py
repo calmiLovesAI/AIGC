@@ -1,12 +1,12 @@
-from diffusers import DiffusionPipeline, EulerDiscreteScheduler, PNDMScheduler, DPMSolverMultistepScheduler
+import torch
+from diffusers import DiffusionPipeline
 
 from src.diffusion.schedulers import diffusion_schedulers
-from tools.data.image import save_image, save_ai_generated_image
+from tools.data.image import save_ai_generated_image
 from tools.platform.device import get_device, set_seed_based_on_device
 
 
-def get_stable_diffusion_v1_5_output(cfg, prompt, scheduler_name='pndm', num_inference_steps=50):
-    device = get_device(type=cfg['device'])
+def get_stable_diffusion_v1_5_output(prompt, scheduler_name='pndm', num_inference_steps=50, device=torch.device('cpu')):
     pipeline = DiffusionPipeline.from_pretrained(pretrained_model_name_or_path='runwayml/stable-diffusion-v1-5',
                                                  use_safetensors=True)
 
@@ -16,7 +16,7 @@ def get_stable_diffusion_v1_5_output(cfg, prompt, scheduler_name='pndm', num_inf
 
     pipeline = pipeline.to(device)
     # Set the seed of the random number generator
-    generator = set_seed_based_on_device(cfg['device'])
+    generator = set_seed_based_on_device(device)
 
     img = pipeline(prompt, generator=generator, num_inference_steps=num_inference_steps).images[0]
     # save_image(img, save_folder="./test_samples/diffusion/")
