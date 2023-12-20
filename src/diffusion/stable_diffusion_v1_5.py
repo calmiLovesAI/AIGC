@@ -5,9 +5,9 @@ from src.diffusion.schedulers import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
 
-def get_stable_diffusion_v1_5_output(prompt, batch_size=1, scheduler_name='pndm', num_inference_steps=50,
+def get_stable_diffusion_v1_5_output(prompt, model_id, batch_size=1, scheduler_name='pndm', num_inference_steps=50,
                                      device=torch.device('cpu')):
-    pipeline = DiffusionPipeline.from_pretrained(pretrained_model_name_or_path='runwayml/stable-diffusion-v1-5',
+    pipeline = DiffusionPipeline.from_pretrained(pretrained_model_name_or_path=model_id,
                                                  torch_dtype=torch.float16,
                                                  use_safetensors=True)
 

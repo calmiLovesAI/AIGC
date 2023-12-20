@@ -42,10 +42,11 @@ def delete_video_files(folder_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--type', type=str, default='all')
+    parser.add_argument('-d', '--dir', type=str, default='./test_samples/results')
     args = parser.parse_args()
 
     # Call the function and pass the folder path containing the images to delete
-    folder_to_clean = get_absolute_path(relative_path='./test_samples/results')  # Replace with the actual folder path
+    folder_to_clean = get_absolute_path(relative_path=args.dir)  # Replace with the actual folder path
 
     match args.type:
         case 'img':
