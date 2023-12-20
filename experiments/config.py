@@ -7,6 +7,7 @@ txt2img_cfg = dict(
     prompt_file="experiments/prompt.txt",
     scheduler="pndm",
     num_inference_steps=50,
+    batch_size=1,
 )
 
 if __name__ == '__main__':

@@ -30,9 +30,3 @@ def get_max_memory_gpu():
         gpu_memory = [torch.cuda.get_device_properties(i).total_memory for i in range(num_gpus)]
         max_memory_index = gpu_memory.index(max(gpu_memory))
         return torch.device(f"cuda:{max_memory_index}")
-
-
-def set_seed_based_on_device(device):
-    generator = torch.Generator(device=device.type)
-    generator.manual_seed(0)  # Set the seed to 0
-    return generator

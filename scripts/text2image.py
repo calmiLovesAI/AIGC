@@ -30,4 +30,4 @@ if __name__ == '__main__':
     device = get_device(cfg.device)
     prompt = read_prompt(cfg.prompt_file)
     print(f"The prompt is \n{prompt}")
-    get_stable_diffusion_v1_5_output(prompt, scheduler_name=cfg.scheduler, num_inference_steps=cfg.num_inference_steps, device=device)
+    get_stable_diffusion_v1_5_output(prompt, batch_size=cfg.batch_size, scheduler_name=cfg.scheduler, num_inference_steps=cfg.num_inference_steps, device=device)

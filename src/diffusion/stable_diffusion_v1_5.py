@@ -3,21 +3,27 @@ from diffusers import DiffusionPipeline
 
 from src.diffusion.schedulers import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
-from tools.platform.device import get_device, set_seed_based_on_device
 
 
-def get_stable_diffusion_v1_5_output(prompt, scheduler_name='pndm', num_inference_steps=50, device=torch.device('cpu')):
+def get_stable_diffusion_v1_5_output(prompt, batch_size=1, scheduler_name='pndm', num_inference_steps=50,
+                                     device=torch.device('cpu')):
     pipeline = DiffusionPipeline.from_pretrained(pretrained_model_name_or_path='runwayml/stable-diffusion-v1-5',
+                                                 torch_dtype=torch.float16,
                                                  use_safetensors=True)
 
     # set scheduler
     scheduler = diffusion_schedulers[scheduler_name]
     pipeline.scheduler = scheduler.from_config(pipeline.scheduler.config)
 
+    # enable sliced attention computation.
+    pipeline.enable_attention_slicing()
+
     pipeline = pipeline.to(device)
     # Set the seed of the random number generator
-    generator = set_seed_based_on_device(device)
+    generator = [torch.Generator("cuda").manual_seed(i) for i in range(batch_size)]
+    prompts = batch_size * [prompt]
 
-    img = pipeline(prompt, generator=generator, num_inference_steps=num_inference_steps).images[0]
-    # save_image(img, save_folder="./test_samples/diffusion/")
-    save_ai_generated_image(img, save_folder="./test_samples/diffusion/", prompt=prompt)
+    imgs = pipeline(prompt=prompts, generator=generator, num_inference_steps=num_inference_steps).images
+
+    for img in imgs:
+        save_ai_generated_image(img, save_folder="./test_samples/diffusion/", prompt=prompt)
