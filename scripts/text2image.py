@@ -1,5 +1,3 @@
-import argparse
-
 from experiments.config import project_cfg, txt2img_cfg
 from src.diffusion.stable_diffusion_v1_5 import get_stable_diffusion_v1_5_output
 from tools.config_parser import load_task_cfg

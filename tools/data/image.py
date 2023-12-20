@@ -38,7 +38,7 @@ def save_image(image, save_folder, filename=None):
     if not filename:
         filename = generate_random_filename("img", "png")
     _ = create_directory_if_not_exists(save_folder)
-    save_path = os.path.join(get_project_root(), save_folder, filename)
+    save_path = os.path.join(_, filename)
     if isinstance(image, np.ndarray):
         cv2.imwrite(save_path, image)
     elif isinstance(image, Image.Image):

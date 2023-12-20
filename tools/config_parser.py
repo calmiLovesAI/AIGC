@@ -45,12 +45,12 @@ def merge_from_file(a, file_path):
     extension = get_file_extension(file_path)
     if extension.lower() == '.json':
         cfg = load_cfg_from_json(file_path)
-        return a.update(cfg)
     elif extension.lower() in ('.yaml', '.yml'):
         cfg = load_cfg_from_yaml(file_path)
-        return a.update(cfg)
     else:
         return ValueError(f"Unsupported file type: {extension}.")
+    a.update(cfg)
+    return a
 
 
 def dict_to_namedtuple(a):
