@@ -1,3 +1,4 @@
+from src import initialize
 from src.diffusion.stable_diffusion_v1_5 import get_stable_diffusion_v1_5_output
 from tools.data.file_ops import get_absolute_path
 
@@ -23,6 +24,7 @@ def read_prompt(file_path):
 
 
 if __name__ == '__main__':
+    cfg = initialize()
     prompt = read_prompt('experiments/prompt.txt')
     print(f"The prompt is {prompt}")
-    get_stable_diffusion_v1_5_output(prompt)
+    get_stable_diffusion_v1_5_output(cfg, prompt, scheduler_name='dpm_solver_multistep', num_inference_steps=20)
