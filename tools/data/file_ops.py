@@ -1,5 +1,4 @@
 import os
-import re
 from datetime import datetime
 
 
@@ -44,15 +43,3 @@ def get_file_extension(file_path):
     return os.path.splitext(file_path)[1]
 
 
-def convert_prompt_to_filename(prompt, length=20):
-    """
-    This function takes a comma-separated string, converts it to an underscore-separated string,
-    and truncates it to the specified length (default is 20 characters).
-    """
-    # Split the string based on comma and join using underscore
-    converted_string = re.sub(r'[, ]+', '_', prompt)
-
-    # Truncate the string to the specified length
-    truncated_string = converted_string[:length]
-
-    return truncated_string
