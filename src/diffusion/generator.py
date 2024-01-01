@@ -1,7 +1,8 @@
 import torch
-from diffusers import DiffusionPipeline, AutoPipelineForText2Image
+from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image
 
 from src.diffusion.lora import add_multiple_loras
+from src.diffusion.models import get_diffusion_model_ckpt
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
@@ -20,6 +21,7 @@ class Text2ImageGenerator:
                  width=512,
                  guidance_scale=7.5,
                  use_fp16=False,
+                 use_lora=True,
                  device=torch.device('cuda')):
         """
         Generate an image from a text description.
@@ -48,16 +50,18 @@ class Text2ImageGenerator:
         self.width = width
         self.guidance_scale = guidance_scale
         self.loras = loras
+        pretrained_model_or_path = get_diffusion_model_ckpt(model_name)
 
         # initialize the pipeline
         if use_fp16:
-            self.pipeline = AutoPipelineForText2Image.from_pretrained(pretrained_model_or_path=model_name,
-                                                                      torch_dtype=torch.float16,
-                                                                      variant='fp16',
-                                                                      use_safetensors=True).to(device)
+            self.pipeline = StableDiffusionPipeline.from_pretrained(pretrained_model_or_path=pretrained_model_or_path,
+                                                                    torch_dtype=torch.float16,
+                                                                    variant='fp16',
+                                                                    use_safetensors=True).to(device)
         else:
-            self.pipeline = AutoPipelineForText2Image.from_pretrained(pretrained_model_or_path=model_name,
-                                                                      use_safetensors=True).to(device)
+            self.pipeline = StableDiffusionPipeline.from_single_file(
+                pretrained_model_link_or_path=pretrained_model_or_path,
+                use_safetensors=True).to(device)
 
         try:
             self.pipeline.unet = torch.compile(self.pipeline.unet, mode="reduce-overhead", fullgraph=True)
@@ -65,7 +69,8 @@ class Text2ImageGenerator:
             print(e)
 
         # add lora
-        add_multiple_loras(self.pipeline, self.loras, mode=lora_mode)
+        if use_lora:
+            add_multiple_loras(self.pipeline, self.loras, mode=lora_mode)
 
         # set scheduler
         self.scheduler = diffusion_schedulers[scheduler_name]
@@ -80,6 +85,7 @@ class Text2ImageGenerator:
         else:
             self.generator = [torch.Generator("cuda").manual_seed(i) for i in range(batch_size)]
         self.prompts = batch_size * [prompt]
+        self.negative_prompts = batch_size * [negative_prompt]
 
     def __call__(self, *args, **kwargs):
         call_parameters = {
@@ -92,7 +98,7 @@ class Text2ImageGenerator:
         }
 
         if self.negative_prompt:
-            call_parameters.update({'negative_prompt': self.negative_prompt})
+            call_parameters.update({'negative_prompt': self.negative_prompts})
         if len(self.loras) == 1:
             call_parameters.update({' cross_attention_kwargs': {'scale': self.loras[0].scale}})
         output_images = self.pipeline(**call_parameters).images

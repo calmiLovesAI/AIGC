@@ -16,7 +16,8 @@ txt2img_cfg = dict(
     loras=[],
     lora_weight_names=[],
     lora_weight_scales=[],
-    load_lora_into_unet_and_text_encoder=True   # True for both, False for only unet
+    load_lora_into_unet_and_text_encoder=True,   # True for both, False for only unet
+    use_lora=False,
 )
 
 if __name__ == '__main__':

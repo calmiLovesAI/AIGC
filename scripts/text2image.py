@@ -25,5 +25,6 @@ if __name__ == '__main__':
                                     height=cfg.height,
                                     width=cfg.width,
                                     guidance_scale=cfg.guidance_scale,
+                                    use_lora=cfg.use_lora,
                                     device=device)
     generator.__call__()

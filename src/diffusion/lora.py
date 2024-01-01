@@ -1,3 +1,9 @@
+import os.path
+
+from src.diffusion.models import get_diffusion_model_ckpt
+from tools.data.file_ops import get_absolute_path
+
+
 class LoRA:
     def __init__(self, lora_model, lora_weight_name, lora_scale):
         """
@@ -13,11 +19,13 @@ class LoRA:
 
 
 def parse_loras(loras, lora_weight_names, lora_scales):
+    if not loras:
+        return None
     assert len(loras) == len(lora_scales)
     if not lora_weight_names:
         lora_weight_names = [''] * len(loras)
     return [
-        LoRA(lora_model=loras[i],
+        LoRA(lora_model=get_diffusion_model_ckpt(loras[i]),
              lora_weight_name=lora_weight_names[i],
              lora_scale=lora_scales[i])
         for i in range(len(loras))
