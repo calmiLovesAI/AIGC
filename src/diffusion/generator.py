@@ -1,6 +1,7 @@
 import torch
 from diffusers import DiffusionPipeline, AutoPipelineForText2Image
 
+from src.diffusion.lora import add_multiple_loras
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
@@ -9,6 +10,8 @@ class Text2ImageGenerator:
     def __init__(self, prompt,
                  negative_prompt,
                  model_name,
+                 loras,
+                 lora_mode,
                  batch_size=1,
                  scheduler_name='pndm',
                  num_inference_steps=50,
@@ -23,6 +26,8 @@ class Text2ImageGenerator:
         :param prompt:
         :param negative_prompt: str, The prompt or prompts to guide what to not include in image generation. Ignored when not using guidance (guidance_scale < 1)
         :param model_name:
+        :param loras: List of LoRAs,
+        :param lora_mode: bool, True for loading LoRA weights into both the UNet and text encoder, False for only the UNet.
         :param batch_size:
         :param scheduler_name:
         :param num_inference_steps:
@@ -42,6 +47,7 @@ class Text2ImageGenerator:
         self.height = height
         self.width = width
         self.guidance_scale = guidance_scale
+        self.loras = loras
 
         # initialize the pipeline
         if use_fp16:
@@ -57,6 +63,10 @@ class Text2ImageGenerator:
             self.pipeline.unet = torch.compile(self.pipeline.unet, mode="reduce-overhead", fullgraph=True)
         except Exception as e:
             print(e)
+
+        # add lora
+        add_multiple_loras(self.pipeline, self.loras, mode=lora_mode)
+
         # set scheduler
         self.scheduler = diffusion_schedulers[scheduler_name]
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
@@ -74,14 +84,37 @@ class Text2ImageGenerator:
     def _get_prompts(self, pos, neg):
         pass
 
+    # def _add_lora(self, lora):
+    #     if not lora.weights:
+    #         self.pipeline.load_lora_weights(
+    #             pretrained_model_name_or_path_or_dict=lora.model,
+    #         )
+    #     self.pipeline.load_lora_weights(
+    #         pretrained_model_name_or_path_or_dict=lora.model,
+    #         weight_name=lora.weights,
+    #     )
+    #
+    # def _add_multiple_loras(self, loras):
+    #     if len(loras) == 1:
+    #         self._add_lora(loras[0])
+    #     for i in range(len(loras)):
+    #         self._add_lora(lora=loras[i])
+    #     self.pipeline.fuse_lora()
+
     def __call__(self, *args, **kwargs):
-        output_images = self.pipeline(prompt=self.prompts,
-                                      negative_prompt=self.negative_prompt,
-                                      generator=self.generator,
-                                      num_inference_steps=self.num_inference_steps,
-                                      height=self.height,
-                                      width=self.width,
-                                      guidance_scale=self.guidance_scale).images
+        call_parameters = {
+            'prompt': self.prompts,
+            'generator': self.generator,
+            'num_inference_steps': self.num_inference_steps,
+            'height': self.height,
+            'width': self.width,
+            'guidance_scale': self.guidance_scale
+        }
+
+        if self.negative_prompt:
+            call_parameters.update({'negative_prompt': self.negative_prompt})
+        if len(self.loras) == 1:
+            call_parameters.update({' cross_attention_kwargs': {'scale': self.loras[0].scale}})
+        output_images = self.pipeline(**call_parameters).images
         for image in output_images:
             save_ai_generated_image(image, prompt=self.prompt)
-
