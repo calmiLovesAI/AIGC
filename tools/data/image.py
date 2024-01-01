@@ -1,3 +1,5 @@
+from datetime import date
+
 import cv2
 import torch
 import os
@@ -71,9 +73,18 @@ def save_ai_generated_image(image, save_folder='./test_samples/diffusion', promp
     """
     assert isinstance(image, Image.Image)
 
+    # Get the current date
+    today_date = date.today()
+    # Create a folder name based on the current date
+    cur_date_folder_name = today_date.isoformat()
+    # Create the folder path for the current date
+    cur_date_folder_path = os.path.join(save_folder, cur_date_folder_name)
+
+    save_dir = create_directory_if_not_exists(cur_date_folder_path)
+
     filename_prefix = convert_prompt_to_filename(prompt, length=30)
     filename = generate_random_filename(file_type=filename_prefix, suffix="png")
-    save_dir = create_directory_if_not_exists(save_folder)
+
     save_dir = os.path.join(save_dir, filename)
     image.save(fp=save_dir)
     print(f"Saved to {save_dir}.")

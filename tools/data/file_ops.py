@@ -13,7 +13,7 @@ def get_project_root():
 
 def generate_random_filename(file_type, suffix):
     current_time = datetime.now()
-    formatted_time = current_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]  # Format time to milliseconds
+    formatted_time = current_time.strftime("%H-%M-%S-%f")[:-3]  # Format time to milliseconds
     match file_type:
         case "img":
             filename = f"{file_type}_{formatted_time}.{suffix}"
