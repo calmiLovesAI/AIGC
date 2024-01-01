@@ -81,26 +81,6 @@ class Text2ImageGenerator:
             self.generator = [torch.Generator("cuda").manual_seed(i) for i in range(batch_size)]
         self.prompts = batch_size * [prompt]
 
-    def _get_prompts(self, pos, neg):
-        pass
-
-    # def _add_lora(self, lora):
-    #     if not lora.weights:
-    #         self.pipeline.load_lora_weights(
-    #             pretrained_model_name_or_path_or_dict=lora.model,
-    #         )
-    #     self.pipeline.load_lora_weights(
-    #         pretrained_model_name_or_path_or_dict=lora.model,
-    #         weight_name=lora.weights,
-    #     )
-    #
-    # def _add_multiple_loras(self, loras):
-    #     if len(loras) == 1:
-    #         self._add_lora(loras[0])
-    #     for i in range(len(loras)):
-    #         self._add_lora(lora=loras[i])
-    #     self.pipeline.fuse_lora()
-
     def __call__(self, *args, **kwargs):
         call_parameters = {
             'prompt': self.prompts,
