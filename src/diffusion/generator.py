@@ -3,7 +3,7 @@ import random
 from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.models import get_diffusion_model_ckpt
+from src.diffusion.models import get_diffusion_model_ckpt, build_stable_diffusion_model
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
@@ -23,6 +23,7 @@ class Text2ImageGenerator:
                  guidance_scale=7.5,
                  use_fp16=False,
                  use_lora=True,
+                 requires_safety_checker=True,
                  device=torch.device('cuda')):
         """
         Generate an image from a text description.
@@ -41,6 +42,7 @@ class Text2ImageGenerator:
                                closely linked to the text prompt at the expense of lower image quality.
                                Guidance scale is enabled when guidance_scale > 1.
         :param use_fp16:
+        :param requires_safety_checker: bool, default True.
         :param device:
         """
         self.prompt = prompt
@@ -51,18 +53,10 @@ class Text2ImageGenerator:
         self.width = width
         self.guidance_scale = guidance_scale
         self.loras = loras
-        pretrained_model_or_path = get_diffusion_model_ckpt(model_name)
+        pretrained_model = get_diffusion_model_ckpt(model_name)
 
         # initialize the pipeline
-        if use_fp16:
-            self.pipeline = StableDiffusionPipeline.from_pretrained(pretrained_model_or_path=pretrained_model_or_path,
-                                                                    torch_dtype=torch.float16,
-                                                                    variant='fp16',
-                                                                    use_safetensors=True).to(device)
-        else:
-            self.pipeline = StableDiffusionPipeline.from_single_file(
-                pretrained_model_link_or_path=pretrained_model_or_path,
-                use_safetensors=True).to(device)
+        self.pipeline = build_stable_diffusion_model(pretrained_model, device, requires_safety_checker)
 
         try:
             self.pipeline.unet = torch.compile(self.pipeline.unet, mode="reduce-overhead", fullgraph=True)
@@ -121,7 +115,8 @@ def get_torch_generator(batch_size, random_seed):
     - If random_seed is a single integer and batch_size is 1, a single torch.Generator instance is returned.
     """
     if random_seed == -1 or (isinstance(random_seed, list) and random_seed[0] == -1):
-        torch_generator = [torch.Generator("cuda").manual_seed(random.randint(1, 2 ** 32 - 1)) for _ in range(batch_size)]
+        torch_generator = [torch.Generator("cuda").manual_seed(random.randint(1, 2 ** 32 - 1)) for _ in
+                           range(batch_size)]
     else:
         if isinstance(random_seed, int):
             torch_generator = [torch.Generator("cuda").manual_seed(random_seed)]
