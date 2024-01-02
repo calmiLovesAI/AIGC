@@ -16,9 +16,9 @@ def generate_random_filename(file_type, suffix):
     formatted_time = current_time.strftime("%H-%M-%S-%f")[:-3]  # Format time to milliseconds
     match file_type:
         case "img":
-            filename = f"{file_type}_{formatted_time}.{suffix}"
+            filename = f"{file_type}_{formatted_time}{suffix}"
         case _:
-            filename = f"{file_type}_{formatted_time}.{suffix}"
+            filename = f"{file_type}_{formatted_time}{suffix}"
     return filename
 
 
