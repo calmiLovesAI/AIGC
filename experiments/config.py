@@ -13,11 +13,13 @@ txt2img_cfg = dict(
     height=768,
     width=512,
     guidance_scale=7.5,
-    loras=[],
-    lora_weight_names=[],
-    lora_weight_scales=[],
-    load_lora_into_unet_and_text_encoder=True,   # True for both, False for only unet
-    use_lora=False,
+    lora=dict(
+        enable=False,
+        model=[],
+        weights=[],
+        scales=[],
+        location='whole',  # 'unet' or 'whole' (both unet and text encoder)
+    ),
 )
 
 if __name__ == '__main__':

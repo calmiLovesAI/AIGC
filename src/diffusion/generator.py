@@ -13,7 +13,7 @@ class Text2ImageGenerator:
                  negative_prompt,
                  model_name,
                  loras,
-                 lora_mode,
+                 lora_location,
                  batch_size=1,
                  scheduler_name='pndm',
                  num_inference_steps=50,
@@ -30,7 +30,7 @@ class Text2ImageGenerator:
         :param negative_prompt: str, The prompt or prompts to guide what to not include in image generation. Ignored when not using guidance (guidance_scale < 1)
         :param model_name:
         :param loras: List of LoRAs,
-        :param lora_mode: bool, True for loading LoRA weights into both the UNet and text encoder, False for only the UNet.
+        :param lora_location: str, 'whole' for loading LoRA weights into both the UNet and text encoder, 'unet' for only the UNet.
         :param batch_size:
         :param scheduler_name:
         :param num_inference_steps:
@@ -71,7 +71,7 @@ class Text2ImageGenerator:
 
         # add lora
         if use_lora:
-            add_multiple_loras(self.pipeline, self.loras, mode=lora_mode)
+            add_multiple_loras(self.pipeline, self.loras, lora_location)
 
         # set scheduler
         self.scheduler = diffusion_schedulers[scheduler_name]

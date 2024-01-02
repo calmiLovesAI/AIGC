@@ -12,12 +12,12 @@ if __name__ == '__main__':
     negative_prompt = read_prompt(cfg.negative_prompt_file)
     print(f"The prompt is \n{prompt}")
     print(f"The negative prompt is \n{negative_prompt}")
-    loras = parse_loras(cfg.loras, cfg.lora_weight_names, cfg.lora_scales)
+    loras = parse_loras(cfg.lora.model, cfg.lora.weights, cfg.lora.scales)
     generator = Text2ImageGenerator(prompt=prompt,
                                     negative_prompt=negative_prompt,
                                     model_name=cfg.model,
                                     loras=loras,
-                                    lora_mode=cfg.load_lora_into_unet_and_text_encoder,
+                                    lora_location=cfg.lora.location,
                                     batch_size=cfg.batch_size,
                                     scheduler_name=cfg.scheduler,
                                     num_inference_steps=cfg.num_inference_steps,
@@ -25,6 +25,6 @@ if __name__ == '__main__':
                                     height=cfg.height,
                                     width=cfg.width,
                                     guidance_scale=cfg.guidance_scale,
-                                    use_lora=cfg.use_lora,
+                                    use_lora=cfg.lora.enable,
                                     device=device)
     generator.__call__()

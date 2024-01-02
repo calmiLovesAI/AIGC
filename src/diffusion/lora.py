@@ -32,7 +32,7 @@ def parse_loras(loras, lora_weight_names, lora_scales):
     ]
 
 
-def add_lora(pipeline, lora, mode):
+def add_lora(pipeline, lora, location):
     params = {
         'pretrained_model_name_or_path_or_dict': lora.model,
     }
@@ -40,15 +40,15 @@ def add_lora(pipeline, lora, mode):
         params.update({
             'weight_name': lora.weights,
         })
-    if mode:
+    if location == 'whole':
         pipeline.load_lora_weights(**params)
     else:
         pipeline.unet.load_attn_procs(**params)
 
 
-def add_multiple_loras(pipeline, loras, mode):
+def add_multiple_loras(pipeline, loras, location):
     if len(loras) == 1:
-        add_lora(pipeline, lora=loras[0], mode=mode)
+        add_lora(pipeline, lora=loras[0], location=location)
     for i in range(len(loras)):
-        add_lora(pipeline, lora=loras[i], mode=mode)
+        add_lora(pipeline, lora=loras[i], location=location)
     pipeline.fuse_lora()
