@@ -1,6 +1,5 @@
 import torch
 import random
-from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image
 
 from src.diffusion.lora import add_multiple_loras
 from src.diffusion.stable_diffusion import get_diffusion_model_ckpt, build_stable_diffusion_model
@@ -31,7 +30,7 @@ class Text2ImagePipeline:
         :param prompt:
         :param negative_prompt: str, The prompt or prompts to guide what to not include in image generation. Ignored when not using guidance (guidance_scale < 1)
         :param model_name:
-        :param loras: List of LoRAs,
+        :param loras: dict, lora model cfg
         :param lora_location: str, 'whole' for loading LoRA weights into both the UNet and text encoder, 'unet' for only the UNet.
         :param batch_size:
         :param scheduler_name:
@@ -66,7 +65,7 @@ class Text2ImagePipeline:
 
         # add lora
         if use_lora:
-            add_multiple_loras(self.pipeline, self.loras, lora_location)
+            add_multiple_loras(self.pipeline, self.loras)
 
         # set scheduler
         self.scheduler = diffusion_schedulers[scheduler_name]

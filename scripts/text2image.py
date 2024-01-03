@@ -1,5 +1,5 @@
 from experiments.config import project_cfg, txt2img_cfg
-from src.diffusion.lora import parse_loras
+from src.diffusion.lora import preprocess_lora_cfg
 from src.diffusion.prompt import read_prompt
 from src.diffusion.pipeline import Text2ImagePipeline
 from tools.config_parser import load_task_cfg
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     negative_prompt = read_prompt(cfg.negative_prompt_file)
     print(f"The prompt is \n{prompt}")
     print(f"The negative prompt is \n{negative_prompt}")
-    loras = parse_loras(cfg.lora.model, cfg.lora.weights, cfg.lora.scales)
+    loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales)
     pipeline = Text2ImagePipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   model_name=cfg.model,
