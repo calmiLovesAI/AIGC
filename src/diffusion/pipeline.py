@@ -73,6 +73,7 @@ class Text2ImagePipeline:
 
         # enable sliced attention computation.
         self.pipeline.enable_attention_slicing()
+        self.pipeline.enable_xformers_memory_efficient_attention()
 
         # A torch.Generator object enables reproducibility in a pipeline by setting a manual seed.
         self.generator, self.random_seeds = get_torch_generator(self.batch_size, random_seed=random_seed)
