@@ -17,5 +17,5 @@ def load_task_cfg(*cfgs):
     if os.path.exists(yaml_file_path):
         yaml_cfg = OmegaConf.load(yaml_file_path)
         base_cfg = OmegaConf.merge(base_cfg, yaml_cfg)
-    print("The configuration is: ", OmegaConf.to_yaml(base_cfg))
+    print("The configuration is: \n", OmegaConf.to_yaml(base_cfg))
     return base_cfg

@@ -14,6 +14,7 @@ txt2img_cfg = {
     'guidance_scale': 7.5,
     'lora': {
         'enable': False,
+        'civitai': False,
         'model': [],
         'weights': [],
         'scales': [],

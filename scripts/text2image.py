@@ -12,7 +12,7 @@ if __name__ == '__main__':
     negative_prompt = read_prompt(cfg.negative_prompt_file)
     print(f"The prompt is \n{prompt}")
     print(f"The negative prompt is \n{negative_prompt}")
-    loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales)
+    loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales, from_civitai=cfg.lora.civitai)
     pipeline = Text2ImagePipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   model_name=cfg.model,
