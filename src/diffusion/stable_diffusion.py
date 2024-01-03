@@ -12,12 +12,7 @@ def get_diffusion_model_ckpt(file_path):
 
 
 def build_stable_diffusion_model(pretrained_model, device, requires_safety_checker=True):
-    safety_param = {}
-    if not requires_safety_checker:
-        safety_param.update({
-            'safety_checker': None
-        })
     pipeline = StableDiffusionPipeline.from_single_file(pretrained_model,
                                                         use_safetensors=True,
-                                                        **safety_param).to(device)
+                                                        load_safety_checker=requires_safety_checker).to(device)
     return pipeline
