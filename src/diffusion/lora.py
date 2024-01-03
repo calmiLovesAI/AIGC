@@ -1,6 +1,6 @@
 import os.path
 
-from src.diffusion.models import get_diffusion_model_ckpt
+from src.diffusion.stable_diffusion import get_diffusion_model_ckpt
 from tools.data.file_ops import get_absolute_path
 
 
@@ -40,7 +40,7 @@ def add_lora(pipeline, lora, location):
         params.update({
             'weight_name': lora.weights,
         })
-    if location == 'whole':
+    if location == 'both':
         pipeline.load_lora_weights(**params)
     else:
         pipeline.unet.load_attn_procs(**params)

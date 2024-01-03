@@ -3,13 +3,14 @@ import random
 from diffusers import StableDiffusionPipeline, AutoPipelineForText2Image
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.models import get_diffusion_model_ckpt, build_stable_diffusion_model
+from src.diffusion.stable_diffusion import get_diffusion_model_ckpt, build_stable_diffusion_model
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
 
-class Text2ImageGenerator:
-    def __init__(self, prompt,
+class Text2ImagePipeline:
+    def __init__(self,
+                 prompt,
                  negative_prompt,
                  model_name,
                  loras,
