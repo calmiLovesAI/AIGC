@@ -1,7 +1,7 @@
 import os
+import torch
 
 from diffusers import StableDiffusionPipeline
-
 from tools.data.file_ops import get_absolute_path
 
 
@@ -15,4 +15,8 @@ def build_stable_diffusion_model(pretrained_model, device, requires_safety_check
     pipeline = StableDiffusionPipeline.from_single_file(pretrained_model,
                                                         use_safetensors=True,
                                                         load_safety_checker=requires_safety_checker).to(device)
+    try:
+        pipeline.unet = torch.compile(pipeline.unet, mode="reduce-overhead", fullgraph=True)
+    except Exception as e:
+        print(e)
     return pipeline

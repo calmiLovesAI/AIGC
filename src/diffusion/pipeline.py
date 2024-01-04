@@ -1,6 +1,8 @@
 import torch
 import random
 
+from compel import Compel
+
 from src.diffusion.lora import add_multiple_loras
 from src.diffusion.stable_diffusion import get_diffusion_model_ckpt, build_stable_diffusion_model
 from src.diffusion.scheduler import diffusion_schedulers
@@ -45,8 +47,8 @@ class Text2ImagePipeline:
         :param requires_safety_checker: bool, default True.
         :param device:
         """
-        self.prompt = prompt
-        self.negative_prompt = negative_prompt
+        self.prompts = batch_size * [prompt]
+        self.negative_prompts = batch_size * [negative_prompt]
         self.batch_size = batch_size
         self.num_inference_steps = num_inference_steps
         self.height = height
@@ -57,11 +59,6 @@ class Text2ImagePipeline:
 
         # initialize the pipeline
         self.pipeline = build_stable_diffusion_model(pretrained_model, device, requires_safety_checker)
-
-        try:
-            self.pipeline.unet = torch.compile(self.pipeline.unet, mode="reduce-overhead", fullgraph=True)
-        except Exception as e:
-            print(e)
 
         # add lora
         if use_lora:
@@ -77,12 +74,16 @@ class Text2ImagePipeline:
 
         # A torch.Generator object enables reproducibility in a pipeline by setting a manual seed.
         self.generator, self.random_seeds = get_torch_generator(self.batch_size, random_seed=random_seed)
-        self.prompts = batch_size * [prompt]
-        self.negative_prompts = batch_size * [negative_prompt]
+
+        # prompt weighting
+        compel_proc = Compel(tokenizer=self.pipeline.tokenizer, text_encoder=self.pipeline.text_encoder)
+
+        self.prompt_embeddings = compel_proc(self.prompts)
+        self.negative_prompt_embeddings = compel_proc(self.negative_prompts)
 
     def __call__(self, *args, **kwargs):
         call_parameters = {
-            'prompt': self.prompts,
+            'prompt_embeds': self.prompt_embeddings,
             'generator': self.generator,
             'num_inference_steps': self.num_inference_steps,
             'height': self.height,
@@ -90,13 +91,11 @@ class Text2ImagePipeline:
             'guidance_scale': self.guidance_scale
         }
 
-        if self.negative_prompt:
-            call_parameters.update({'negative_prompt': self.negative_prompts})
-        if len(self.loras) == 1:
-            call_parameters.update({' cross_attention_kwargs': {'scale': self.loras[0].scale}})
+        if self.negative_prompts[0]:
+            call_parameters.update({'negative_prompt_embeds': self.negative_prompt_embeddings})
         output_images = self.pipeline(**call_parameters).images
         for i, image in enumerate(output_images):
-            save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompt)
+            save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
 
 
 def get_torch_generator(batch_size, random_seed):
