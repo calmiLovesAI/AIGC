@@ -9,7 +9,7 @@ if __name__ == '__main__':
     cfg = load_task_cfg(project_cfg, txt2img_cfg)
     device = get_device(cfg.device)
     prompt = read_prompt(cfg.prompt_file)
-    negative_prompt = read_prompt(cfg.negative_prompt_file)
+    negative_prompt = read_prompt(cfg.negative_prompt_file, True)
     print(f"The prompt is \n{prompt}")
     print(f"The negative prompt is \n{negative_prompt}")
     loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales, from_civitai=cfg.lora.civitai)

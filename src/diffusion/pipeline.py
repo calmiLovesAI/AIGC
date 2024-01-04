@@ -76,24 +76,21 @@ class Text2ImagePipeline:
         self.generator, self.random_seeds = get_torch_generator(self.batch_size, random_seed=random_seed)
 
         # prompt weighting
-        compel_proc = Compel(tokenizer=self.pipeline.tokenizer, text_encoder=self.pipeline.text_encoder)
+        compel_proc = Compel(tokenizer=self.pipeline.tokenizer,
+                             text_encoder=self.pipeline.text_encoder,
+                             truncate_long_prompts=False)
 
         self.prompt_embeddings = compel_proc(self.prompts)
         self.negative_prompt_embeddings = compel_proc(self.negative_prompts)
 
     def __call__(self, *args, **kwargs):
-        call_parameters = {
-            'prompt_embeds': self.prompt_embeddings,
-            'generator': self.generator,
-            'num_inference_steps': self.num_inference_steps,
-            'height': self.height,
-            'width': self.width,
-            'guidance_scale': self.guidance_scale
-        }
-
-        if self.negative_prompts[0]:
-            call_parameters.update({'negative_prompt_embeds': self.negative_prompt_embeddings})
-        output_images = self.pipeline(**call_parameters).images
+        output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
+                                      negative_prompt_embeds=self.negative_prompt_embeddings,
+                                      generator=self.generator,
+                                      num_inference_steps=self.num_inference_steps,
+                                      height=self.height,
+                                      width=self.width,
+                                      guidance_scale=self.guidance_scale).images
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
 
