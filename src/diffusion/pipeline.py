@@ -80,8 +80,10 @@ class Text2ImagePipeline:
                              text_encoder=self.pipeline.text_encoder,
                              truncate_long_prompts=False)
 
-        self.prompt_embeddings = compel_proc(self.prompts)
-        self.negative_prompt_embeddings = compel_proc(self.negative_prompts)
+        with torch.no_grad():
+            conditioning = compel_proc(self.prompts)
+            negative_conditioning = compel_proc(self.negative_prompts)
+            [self.prompt_embeddings, self.negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length([conditioning, negative_conditioning])
 
     def __call__(self, *args, **kwargs):
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
