@@ -12,6 +12,7 @@ txt2img_cfg = {
     'height': 512,
     'width': 512,
     'guidance_scale': 7.5,
+    'clip_skip': 2,
     'lora': {
         'enable': False,
         'civitai': False,

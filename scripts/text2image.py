@@ -1,7 +1,7 @@
 from experiments.config import project_cfg, txt2img_cfg
 from src.diffusion.lora import preprocess_lora_cfg
 from src.diffusion.prompt import read_prompt
-from src.diffusion.pipeline import Text2ImagePipeline
+from src.diffusion.txt2img_pipeline import Text2ImagePipeline
 from tools.config_parser import load_task_cfg
 from tools.platform.device import get_device
 
@@ -25,6 +25,7 @@ if __name__ == '__main__':
                                   height=cfg.height,
                                   width=cfg.width,
                                   guidance_scale=cfg.guidance_scale,
+                                  clip_skip=cfg.clip_skip,
                                   use_lora=cfg.lora.enable,
                                   requires_safety_checker=cfg.get('nsfw', True),
                                   device=device)

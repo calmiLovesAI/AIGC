@@ -23,6 +23,7 @@ class Text2ImagePipeline:
                  height=512,
                  width=512,
                  guidance_scale=7.5,
+                 clip_skip=2,
                  use_fp16=False,
                  use_lora=True,
                  requires_safety_checker=True,
@@ -43,6 +44,8 @@ class Text2ImagePipeline:
         :param guidance_scale: float, A higher guidance scale value encourages the model to generate images
                                closely linked to the text prompt at the expense of lower image quality.
                                Guidance scale is enabled when guidance_scale > 1.
+        :param clip_skip: int, default 2. Number of layers to be skipped from CLIP while computing the prompt embeddings.
+                          A value of 1 means that the output of the pre-final layer will be used for computing the prompt embeddings.
         :param use_fp16:
         :param requires_safety_checker: bool, default True.
         :param device:
@@ -54,6 +57,7 @@ class Text2ImagePipeline:
         self.height = height
         self.width = width
         self.guidance_scale = guidance_scale
+        self.clip_skip = clip_skip
         self.loras = loras
         pretrained_model = get_diffusion_model_ckpt(model_name)
 
@@ -83,7 +87,9 @@ class Text2ImagePipeline:
         with torch.no_grad():
             conditioning = compel_proc(self.prompts)
             negative_conditioning = compel_proc(self.negative_prompts)
-            [self.prompt_embeddings, self.negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length([conditioning, negative_conditioning])
+            [self.prompt_embeddings,
+             self.negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
+                [conditioning, negative_conditioning])
 
     def __call__(self, *args, **kwargs):
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
@@ -92,7 +98,8 @@ class Text2ImagePipeline:
                                       num_inference_steps=self.num_inference_steps,
                                       height=self.height,
                                       width=self.width,
-                                      guidance_scale=self.guidance_scale).images
+                                      guidance_scale=self.guidance_scale,
+                                      clip_skip=self.clip_skip).images
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
 
