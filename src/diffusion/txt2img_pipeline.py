@@ -69,8 +69,7 @@ class Text2ImagePipeline:
             add_multiple_loras(self.pipeline, self.loras)
 
         # set scheduler
-        self.scheduler = diffusion_schedulers[scheduler_name]
-        self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
+        self._set_scheduler(scheduler_name)
 
         # enable sliced attention computation.
         self.pipeline.enable_attention_slicing()
@@ -90,6 +89,14 @@ class Text2ImagePipeline:
             [self.prompt_embeddings,
              self.negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
                 [conditioning, negative_conditioning])
+
+    def _set_scheduler(self, scheduler_name):
+        try:
+            self.scheduler = diffusion_schedulers[scheduler_name]
+        except Exception:
+            raise ValueError(f"The scheduler {scheduler_name} is not in diffusion_schedulers, "
+                             f"only {diffusion_schedulers.keys()} are supported.")
+        self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
     def __call__(self, *args, **kwargs):
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
@@ -130,7 +137,7 @@ def get_torch_generator(batch_size, random_seed):
             random_seeds = [random_seed]
             torch_generator = [torch.Generator("cuda").manual_seed(random_seed)]
         else:
-            random_seeds = random_seed
+            random_seeds = [random.randint(1, 2 ** 32 - 1) if n == -1 else n for n in random_seed]
             torch_generator = [torch.Generator("cuda").manual_seed(random_seed[i]) for i in range(batch_size)]
 
     return torch_generator[0] if len(torch_generator) == 1 else torch_generator, random_seeds
