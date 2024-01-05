@@ -4,7 +4,7 @@ project_cfg = {
 
 txt2img_cfg = {
     'prompt_file': "experiments/prompt.txt",
-    'scheduler': "pndm",
+    'scheduler': "DPM++ 2M SDE Karras",
     'num_inference_steps': 50,
     'batch_size': 1,
     'model': "runwayml/stable-diffusion-v1-5",
