@@ -4,7 +4,7 @@ import random
 from compel import Compel
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.stable_diffusion import get_diffusion_model_ckpt, build_stable_diffusion_model
+from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
@@ -14,6 +14,7 @@ class Text2ImagePipeline:
                  prompt,
                  negative_prompt,
                  model_name,
+                 model_type,
                  loras,
                  lora_location,
                  batch_size=1,
@@ -33,6 +34,7 @@ class Text2ImagePipeline:
         :param prompt:
         :param negative_prompt: str, The prompt or prompts to guide what to not include in image generation. Ignored when not using guidance (guidance_scale < 1)
         :param model_name:
+        :param model_type: str
         :param loras: dict, lora model cfg
         :param lora_location: str, 'whole' for loading LoRA weights into both the UNet and text encoder, 'unet' for only the UNet.
         :param batch_size:
@@ -59,10 +61,9 @@ class Text2ImagePipeline:
         self.guidance_scale = guidance_scale
         self.clip_skip = clip_skip
         self.loras = loras
-        pretrained_model = get_diffusion_model_ckpt(model_name)
 
         # initialize the pipeline
-        self.pipeline = build_stable_diffusion_model(pretrained_model, device, requires_safety_checker)
+        self.pipeline = build_stable_diffusion_pipeline(model_name, requires_safety_checker=requires_safety_checker, device=device)
 
         # add lora
         if use_lora:

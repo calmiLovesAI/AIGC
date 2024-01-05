@@ -16,6 +16,7 @@ if __name__ == '__main__':
     pipeline = Text2ImagePipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
                                   model_name=cfg.model,
+                                  model_type=cfg.model_type,
                                   loras=loras,
                                   lora_location=cfg.lora.location,
                                   batch_size=cfg.batch_size,

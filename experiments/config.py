@@ -3,6 +3,7 @@ project_cfg = {
 }
 
 txt2img_cfg = {
+    'model_type': 'SD_1_5',
     'prompt_file': "experiments/prompt.txt",
     'scheduler': "DPM++ 2M SDE Karras",
     'num_inference_steps': 50,
