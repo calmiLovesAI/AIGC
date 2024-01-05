@@ -19,10 +19,9 @@ def read_prompt(file_path, neg=False):
         end -= 1
 
     prompt = ''.join(lines[start:end + 1])
-    if neg:
-        prompt = remove_a1111_prompt_weight(prompt)
-    else:
-        prompt = prompt_weighting_from_a1111_to_compel(prompt)
+    prompt = remove_a1111_prompt_lora_description(prompt)
+    prompt = prompt_weighting_from_a1111_to_compel(prompt)
+    prompt = remove_paired_brackets_in_string(prompt)
 
     return prompt
 
@@ -35,6 +34,69 @@ def remove_a1111_prompt_weight(prompt: str) -> str:
     """
     cleaned_prompt = re.sub(r'[\(\):\d\.]', '', prompt)
     return cleaned_prompt
+
+
+def remove_paired_brackets_in_string(prompt: str) -> str:
+    """
+    Only handle brackets with more than two levels of nesting, retain one level of brackets,
+    and add plus signs after the right bracket, the number of which is the number of nesting levels minus one.
+    :param prompt:
+    :return:
+    """
+    result = ""
+    nested_count = 0
+    max_nested_count = 0
+
+    for char in prompt:
+        if char == '(':
+            if nested_count == 0:
+                result += '('
+            nested_count += 1
+        elif char == ')':
+            if nested_count == 1:
+                result += ')'
+                result += '+' * (max_nested_count - 1)
+            nested_count -= 1
+        else:
+            result += char
+        max_nested_count = max(max_nested_count, nested_count)
+
+    return result
+
+
+def remove_a1111_prompt_lora_description(prompt: str) -> str:
+    """
+    Remove pairs of angle brackets < > and the characters between them from a string
+    :param prompt:
+    :return:
+    """
+    result = ""
+    stack = []
+
+    for char in prompt:
+        if char == '<':
+            stack.append(len(result))
+        elif char == '>':
+            if stack:
+                start = stack.pop()
+                result = result[:start]
+            else:
+                result += char
+        else:
+            if not stack:
+                result += char
+    result = merge_whitespace(result)
+    return result
+
+
+def merge_whitespace(sentence: str) -> str:
+    """
+    Replace multiple consecutive whitespace characters with a single space using regular expression
+    :param sentence:
+    :return:
+    """
+    cleaned_sentence = re.sub(r'\s+', ' ', sentence)
+    return cleaned_sentence
 
 
 def prompt_weighting_from_a1111_to_compel(prompt: str) -> str:
