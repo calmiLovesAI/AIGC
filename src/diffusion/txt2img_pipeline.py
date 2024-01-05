@@ -137,7 +137,9 @@ def get_torch_generator(batch_size, random_seed):
             random_seeds = [random_seed]
             torch_generator = [torch.Generator("cuda").manual_seed(random_seed)]
         else:
+            # random_seed is a list
+            assert batch_size == len(random_seed)
             random_seeds = [random.randint(1, 2 ** 32 - 1) if n == -1 else n for n in random_seed]
-            torch_generator = [torch.Generator("cuda").manual_seed(random_seed[i]) for i in range(batch_size)]
+            torch_generator = [torch.Generator("cuda").manual_seed(random_seeds[i]) for i in range(batch_size)]
 
     return torch_generator[0] if len(torch_generator) == 1 else torch_generator, random_seeds
