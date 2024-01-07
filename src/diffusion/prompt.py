@@ -3,7 +3,7 @@ import re
 from tools.data.file_ops import get_absolute_path
 
 
-def read_prompt(file_path, neg=False):
+def read_prompt(file_path):
     file_path = get_absolute_path(file_path)
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -20,7 +20,7 @@ def read_prompt(file_path, neg=False):
 
     prompt = ''.join(lines[start:end + 1])
     prompt = remove_a1111_prompt_lora_description(prompt)
-    prompt = prompt_weighting_from_a1111_to_compel(prompt)
+    prompt = convert_a1111_prompt_weighting_to_compel(prompt, True)
     prompt = remove_paired_brackets_in_string(prompt)
 
     return prompt
@@ -99,17 +99,20 @@ def merge_whitespace(sentence: str) -> str:
     return cleaned_sentence
 
 
-def prompt_weighting_from_a1111_to_compel(prompt: str) -> str:
+def convert_a1111_prompt_weighting_to_compel(prompt: str, keep_float_weight: bool = False) -> str:
     """
     Convert a1111 prompt weighting format (such as '(long hair: 1.2)')to compel format (such as 'long hair++').
     In compel format, + corresponds to the value 1.1, ++ corresponds to 1.1^2, and - corresponds to 0.9 and -- corresponds to 0.9^2.
     :param prompt: str, a1111 format
+    :param keep_float_weight: bool, whether to keep the floating point number representation of weights.
     :return: prompt weighting in compel format
     """
 
     def calculate_weight(match):
         prompt_text = match.group(1).strip()
         weight = float(match.group(2))
+        if keep_float_weight:
+            return f"({prompt_text}){weight}"
 
         # Calculate the compel format corresponding to the weight.
         symbols = ''
