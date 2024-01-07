@@ -52,24 +52,46 @@ def get_model_filenames(root_dir=STABLE_DIFFUSION_MODEL_ROOT, suffix='safetensor
     return model_files
 
 
-ui = gr.Interface(
-    fn=txt2img,
-    inputs=[
-        gr.Dropdown(label='Choose the model', choices=get_model_filenames()),
-        gr.Dropdown(label='Choose the model type', choices=['Stable Diffusion 1.5', 'Stable Diffusion XL']),
-        gr.Textbox(label='prompt', interactive=True, show_copy_button=True, min_width=200),
-        gr.Textbox(label='negative prompt', interactive=True, show_copy_button=True, min_width=200),
-        gr.Dropdown(label='Choose the scheduler', choices=get_scheduler_names()),
-        gr.Slider(label='num of inference steps', minimum=10, maximum=100, value=20, step=1),
-        gr.Slider(label='batch size', minimum=1, maximum=64, value=1, step=1),
-        gr.Number(label='height', value=1024, precision=0, minimum=512, maximum=None, step=1),
-        gr.Number(label='width', value=640, precision=0, minimum=512, maximum=None, step=1),
-        gr.Number(label='random seed', value=-1, precision=0, minimum=-1),
-        gr.Number(label='guidance scale', value=7.0, minimum=1.0),
-        gr.Number(label='clip skip', value=2, precision=0),
-    ],
-    outputs=[gr.Image(type='pil') for _ in range(2)]
-)
+def main():
+    with gr.Blocks() as ui:
+        with gr.Row():
+            with gr.Column():
+                with gr.Row():
+                    model = gr.Dropdown(label='Choose the model', choices=get_model_filenames())
+                    model_type = gr.Dropdown(label='Choose the model type', choices=['Stable Diffusion 1.5', 'Stable Diffusion XL'])
+                    scheduler = gr.Dropdown(label='Choose the scheduler', choices=get_scheduler_names())
+                prompt = gr.Textbox(label='prompt', interactive=True, show_copy_button=True)
+                negative_prompt = gr.Textbox(label='negative prompt', show_copy_button=True)
+                with gr.Row():
+                    num_inference_steps = gr.Slider(label='num of inference steps', minimum=10, maximum=100, value=20, step=1)
+                    batch_size = gr.Slider(label='batch size', minimum=1, maximum=64, value=1, step=1)
+                with gr.Row():
+                    height = gr.Number(label='height', value=1024, precision=0, minimum=512, maximum=None, step=1)
+                    width = gr.Number(label='width', value=640, precision=0, minimum=512, maximum=None, step=1)
+                with gr.Row():
+                    random_seed = gr.Number(label='random seed', value=-1, precision=0, minimum=-1)
+                    guidance_scale = gr.Number(label='guidance scale', value=7.0, minimum=1.0)
+                    clip_skip = gr.Number(label='clip skip', value=2, precision=0)
+
+                run_btn = gr.Button(value='Run')
+
+            with gr.Column():
+                with gr.Row():
+                    output_1 = gr.Image(type='pil')
+                    output_2 = gr.Image(type='pil')
+
+        run_btn.click(fn=txt2img,
+                      inputs=[
+                          model, model_type, prompt, negative_prompt, scheduler,
+                          num_inference_steps, batch_size, height, width,
+                          random_seed, guidance_scale, clip_skip
+                      ],
+                      outputs=[
+                          output_1,
+                          output_2
+                      ])
+    ui.launch()
+
 
 if __name__ == '__main__':
-    ui.launch()
+    main()

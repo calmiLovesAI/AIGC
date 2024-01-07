@@ -86,7 +86,7 @@ class Text2ImagePipeline:
         self._set_scheduler(scheduler_name)
 
         # A torch.Generator object enables reproducibility in a pipeline by setting a manual seed.
-        self.generator, self.random_seeds = get_torch_generator(self.batch_size, random_seed=random_seed)
+        self.generator, self.random_seeds = get_torch_generator(self.batch_size, input_random_seed=random_seed)
 
     def _set_scheduler(self, scheduler_name):
         try:
@@ -116,15 +116,15 @@ class Text2ImagePipeline:
             return output_images
 
 
-def get_torch_generator(batch_size, random_seed):
+def get_torch_generator(batch_size, input_random_seed):
     """
     Generate a list of PyTorch Generators based on given criteria.
 
     Arguments:
     - batch_size: The desired length of the list of torch.Generator instances.
-    - random_seed: The criteria for generating torch.Generator instances.
-                   If random_seed is -1 or [-1], generates a list of random torch.Generator instances.
-                   Otherwise, generates torch.Generator instances based on the provided seed or list of seeds.
+    - input_random_seed: The criteria for generating torch.Generator instances.
+                         If random_seed is -1 or [-1], generates a list of random torch.Generator instances.
+                         Otherwise, generates torch.Generator instances based on the provided seed or list of seeds.
 
     Returns:
     - torch_generator: A list of torch.Generator instances based on the criteria provided.
@@ -133,18 +133,18 @@ def get_torch_generator(batch_size, random_seed):
     Note:
     - If random_seed is a single integer and batch_size is 1, a single torch.Generator instance is returned.
     """
-    if random_seed == -1 or (isinstance(random_seed, list) and random_seed[0] == -1):
-        random_seeds = [random.randint(1, 2 ** 32 - 1) for _ in range(batch_size)]
-        torch_generator = [torch.Generator("cuda").manual_seed(r_seed) for r_seed in
-                           random_seeds]
+    random_seeds = [random.randint(1, 2 ** 32 - 1) for _ in range(batch_size)]
+
+    if input_random_seed == -1:
+        pass
     else:
-        if isinstance(random_seed, int):
-            random_seeds = [random_seed]
-            torch_generator = [torch.Generator("cuda").manual_seed(random_seed)]
+        if isinstance(input_random_seed, int):
+            random_seeds[0] = input_random_seed
         else:
             # random_seed is a list
-            assert batch_size == len(random_seed)
-            random_seeds = [random.randint(1, 2 ** 32 - 1) if n == -1 else n for n in random_seed]
-            torch_generator = [torch.Generator("cuda").manual_seed(random_seeds[i]) for i in range(batch_size)]
+            for i in range(batch_size):
+                if input_random_seed[i] != -1:
+                    random_seeds[i] = input_random_seed[i]
 
-    return torch_generator[0] if len(torch_generator) == 1 else torch_generator, random_seeds
+    torch_generator = [torch.Generator("cuda").manual_seed(seed) for seed in random_seeds]
+    return torch_generator, random_seeds
