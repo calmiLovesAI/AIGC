@@ -13,3 +13,4 @@ PyYAML
 omegaconf
 xformers
 compel
+gradio

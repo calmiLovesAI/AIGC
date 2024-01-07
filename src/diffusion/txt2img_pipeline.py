@@ -61,7 +61,7 @@ class Text2ImagePipeline:
         self.loras = loras
 
         # initialize the pipeline
-        if self.model_type == 'SD':
+        if self.model_type == 'Stable Diffusion 1.5':
             components = build_stable_diffusion_pipeline(model_name, loras, prompts=self.prompts,
                                                          negative_prompts=self.negative_prompts,
                                                          use_lora=use_lora,
@@ -70,7 +70,7 @@ class Text2ImagePipeline:
             self.pipeline = components['pipeline']
             self.prompt_embeddings = components['prompt_embeddings']
             self.negative_prompt_embeddings = components['negative_prompt_embeddings']
-        elif self.model_type == 'SDXL':
+        elif self.model_type == 'Stable Diffusion XL':
             components = build_stable_diffusion_xl_pipeline(model_name, loras, prompts=self.prompts,
                                                             negative_prompts=self.negative_prompts,
                                                             use_lora=use_lora,
@@ -96,9 +96,9 @@ class Text2ImagePipeline:
                              f"only {diffusion_schedulers.keys()} are supported.")
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, show=False, *args, **kwargs):
         params = {}
-        if self.model_type == 'SDXL':
+        if self.model_type == 'Stable Diffusion XL':
             params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
                            'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds})
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
@@ -112,6 +112,8 @@ class Text2ImagePipeline:
                                       **params).images
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
+        if show:
+            return output_images
 
 
 def get_torch_generator(batch_size, random_seed):

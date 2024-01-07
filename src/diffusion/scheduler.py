@@ -2,13 +2,11 @@ from diffusers import EulerDiscreteScheduler, PNDMScheduler, DPMSolverMultistepS
     EulerAncestralDiscreteScheduler
 
 __all__ = [
-    'diffusion_schedulers'
+    'diffusion_schedulers',
+    'get_scheduler_names',
 ]
 
 diffusion_schedulers = {
-    'pndm': PNDMScheduler,
-    'euler_discrete': EulerDiscreteScheduler,
-    'dpm_solver_multistep': DPMSolverMultistepScheduler,
     # a1111 schedulers
     'DPM++ 2M': DPMSolverMultistepScheduler,
     'DPM++ 2M Karras': DPMSolverMultistepScheduler(use_karras_sigmas=True),
@@ -18,3 +16,7 @@ diffusion_schedulers = {
     'Euler': EulerDiscreteScheduler,
     'Euler a': EulerAncestralDiscreteScheduler,
 }
+
+
+def get_scheduler_names():
+    return list(diffusion_schedulers.keys())
