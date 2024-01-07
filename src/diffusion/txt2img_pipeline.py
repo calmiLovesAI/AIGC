@@ -4,7 +4,7 @@ import random
 from compel import Compel
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline
+from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
 from src.diffusion.scheduler import diffusion_schedulers
 from tools.data.image import save_ai_generated_image
 
@@ -52,6 +52,7 @@ class Text2ImagePipeline:
         :param requires_safety_checker: bool, default True.
         :param device:
         """
+        self.model_type = model_type
         self.prompts = batch_size * [prompt]
         self.negative_prompts = batch_size * [negative_prompt]
         self.batch_size = batch_size
@@ -63,33 +64,32 @@ class Text2ImagePipeline:
         self.loras = loras
 
         # initialize the pipeline
-        self.pipeline = build_stable_diffusion_pipeline(model_name, requires_safety_checker=requires_safety_checker, device=device)
-
-        # add lora
-        if use_lora:
-            add_multiple_loras(self.pipeline, self.loras)
+        if self.model_type == 'SD':
+            components = build_stable_diffusion_pipeline(model_name, loras, prompts=self.prompts,
+                                                         negative_prompts=self.negative_prompts,
+                                                         use_lora=use_lora,
+                                                         requires_safety_checker=requires_safety_checker,
+                                                         device=device)
+            self.pipeline = components['pipeline']
+            self.prompt_embeddings = components['prompt_embeddings']
+            self.negative_prompt_embeddings = components['negative_prompt_embeddings']
+        elif self.model_type == 'SDXL':
+            components = build_stable_diffusion_xl_pipeline(model_name, loras, prompts=self.prompts,
+                                                            negative_prompts=self.negative_prompts,
+                                                            use_lora=use_lora,
+                                                            requires_safety_checker=requires_safety_checker,
+                                                            device=device)
+            self.pipeline = components['pipeline']
+            self.prompt_embeddings = components['prompt_embeddings']
+            self.negative_prompt_embeddings = components['negative_prompt_embeddings']
+            self.pooled_prompt_embeds = components['pooled']
+            self.negative_pooled_prompt_embeds = components['neg_pooled']
 
         # set scheduler
         self._set_scheduler(scheduler_name)
 
-        # enable sliced attention computation.
-        self.pipeline.enable_attention_slicing()
-        self.pipeline.enable_xformers_memory_efficient_attention()
-
         # A torch.Generator object enables reproducibility in a pipeline by setting a manual seed.
         self.generator, self.random_seeds = get_torch_generator(self.batch_size, random_seed=random_seed)
-
-        # prompt weighting
-        compel_proc = Compel(tokenizer=self.pipeline.tokenizer,
-                             text_encoder=self.pipeline.text_encoder,
-                             truncate_long_prompts=False)
-
-        with torch.no_grad():
-            conditioning = compel_proc(self.prompts)
-            negative_conditioning = compel_proc(self.negative_prompts)
-            [self.prompt_embeddings,
-             self.negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
-                [conditioning, negative_conditioning])
 
     def _set_scheduler(self, scheduler_name):
         try:
@@ -100,6 +100,10 @@ class Text2ImagePipeline:
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
     def __call__(self, *args, **kwargs):
+        params = {}
+        if self.model_type == 'SDXL':
+            params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
+                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds})
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
                                       negative_prompt_embeds=self.negative_prompt_embeddings,
                                       generator=self.generator,
@@ -107,7 +111,8 @@ class Text2ImagePipeline:
                                       height=self.height,
                                       width=self.width,
                                       guidance_scale=self.guidance_scale,
-                                      clip_skip=self.clip_skip).images
+                                      clip_skip=self.clip_skip,
+                                      **params).images
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
 
