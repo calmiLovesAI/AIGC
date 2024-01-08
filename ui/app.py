@@ -70,8 +70,8 @@ def main():
                                                     step=1)
                     batch_size = gr.Slider(label='batch size', minimum=1, maximum=64, value=1, step=1)
                 with gr.Row():
-                    height = gr.Number(label='height', value=1024, precision=0, minimum=512, maximum=None, step=1)
-                    width = gr.Number(label='width', value=640, precision=0, minimum=512, maximum=None, step=1)
+                    height = gr.Number(label='height', value=768, precision=0, minimum=512, maximum=None, step=1)
+                    width = gr.Number(label='width', value=512, precision=0, minimum=512, maximum=None, step=1)
                 with gr.Row():
                     random_seed = gr.Number(label='random seed', value=-1, precision=0, minimum=-1)
                     guidance_scale = gr.Slider(label='guidance scale', value=7.0, minimum=1.0, maximum=20.0)
