@@ -63,7 +63,7 @@ def main():
                     model_type = gr.Dropdown(label='Choose the model type',
                                              choices=['Stable Diffusion 1.5', 'Stable Diffusion XL'])
                     scheduler = gr.Dropdown(label='Choose the scheduler', choices=get_scheduler_names())
-                prompt = gr.Textbox(label='prompt', interactive=True, show_copy_button=True)
+                prompt = gr.Textbox(label='prompt', show_copy_button=True)
                 negative_prompt = gr.Textbox(label='negative prompt', show_copy_button=True)
                 with gr.Row():
                     num_inference_steps = gr.Slider(label='num of inference steps', minimum=10, maximum=100, value=20,
