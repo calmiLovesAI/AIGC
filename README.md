@@ -3,18 +3,23 @@ Artificial Intelligence Generated Content.
 
 
 # Installation
-1. set the project root directory as `PYTHONPATH` environment variable.
-2. set `HF_HOME` environment variable.
-3. install requirements
+1. Set the project root directory as `PYTHONPATH` environment variable.
+2. Set `HF_HOME` environment variable.
+3. Install requirements
 ```commandline
 git clone https://github.com/calmiLovesAI/AIGC.git
 cd AIGC
 pip install -r requirements.txt
 ```
-4. install huggingface-diffusers
+4. Install [Real-ESRGAN](https://github.com/ai-forever/Real-ESRGAN) as a upscaler, also download the model weights from the [HuggingFace page](https://huggingface.co/ai-forever/Real-ESRGAN)
+```commandline
+pip install git+https://github.com/sberbank-ai/Real-ESRGAN.git
+```
+5. Install huggingface-diffusers
 ```commandline
 pip install --upgrade diffusers[torch]
 ```
+6. Download the pretrained model.
 
 # Text to Image
 ## Start with terminal

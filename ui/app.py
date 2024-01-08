@@ -4,6 +4,7 @@ import gradio as gr
 
 from src.diffusion.scheduler import get_scheduler_names
 from src.diffusion.txt2img_pipeline import Text2ImagePipeline
+from src.diffusion.upscaler import ALL_UPSCALERS
 from tools.data.file_ops import get_absolute_path
 
 STABLE_DIFFUSION_MODEL_ROOT = './downloads/stable_diffusion/'
@@ -11,25 +12,29 @@ STABLE_DIFFUSION_MODEL_ROOT = './downloads/stable_diffusion/'
 
 def run_txt2img(model, model_type, prompt, negative_prompt, scheduler,
                 num_inference_steps, batch_size, height, width,
-                random_seed, guidance_scale, clip_skip, progress=gr.Progress(track_tqdm=True)):
+                random_seed, guidance_scale, clip_skip, upscaler, scale_factor, progress=gr.Progress(track_tqdm=True)):
     model = get_absolute_path(relative_path=STABLE_DIFFUSION_MODEL_ROOT + model)
-    ret = Text2ImagePipeline(prompt=prompt,
-                             negative_prompt=negative_prompt,
-                             model_name=model,
-                             model_type=model_type,
-                             loras={},
-                             lora_location='',
-                             batch_size=batch_size,
-                             scheduler_name=scheduler,
-                             num_inference_steps=num_inference_steps,
-                             random_seed=random_seed,
-                             height=height,
-                             width=width,
-                             guidance_scale=guidance_scale,
-                             clip_skip=clip_skip,
-                             use_lora=False,
-                             requires_safety_checker=False).__call__(show=True)
-    return ret
+
+    outputs = Text2ImagePipeline(prompt=prompt,
+                                 negative_prompt=negative_prompt,
+                                 model_name=model,
+                                 model_type=model_type,
+                                 loras={},
+                                 lora_location='',
+                                 batch_size=batch_size,
+                                 scheduler_name=scheduler,
+                                 num_inference_steps=num_inference_steps,
+                                 random_seed=random_seed,
+                                 height=height,
+                                 width=width,
+                                 guidance_scale=guidance_scale,
+                                 clip_skip=clip_skip,
+                                 upscaler=upscaler,
+                                 scale_factor=scale_factor,
+                                 use_lora=False,
+                                 requires_safety_checker=False).__call__()
+
+    return outputs
 
 
 def get_model_filenames(root_dir=STABLE_DIFFUSION_MODEL_ROOT, suffix='safetensors'):
@@ -71,8 +76,11 @@ def main():
                     random_seed = gr.Number(label='random seed', value=-1, precision=0, minimum=-1)
                     guidance_scale = gr.Slider(label='guidance scale', value=7.0, minimum=1.0, maximum=20.0)
                     clip_skip = gr.Slider(label='clip skip', value=2, minimum=1, maximum=15, step=1)
+                with gr.Row():
+                    upscaler = gr.Dropdown(label='Choose the upscaler', choices=ALL_UPSCALERS)
+                    scale_factor = gr.Slider(label='scale factor', minimum=2, maximum=8, value=2, step=2)
 
-                run_btn = gr.Button(value='Run')
+                run_btn = gr.Button(value='Generate')
 
             with gr.Column():
                 output = gr.Gallery(height='60vh')
@@ -81,7 +89,8 @@ def main():
                       inputs=[
                           model, model_type, prompt, negative_prompt, scheduler,
                           num_inference_steps, batch_size, height, width,
-                          random_seed, guidance_scale, clip_skip
+                          random_seed, guidance_scale, clip_skip, upscaler,
+                          scale_factor
                       ],
                       outputs=output)
     ui.queue().launch()

@@ -3,6 +3,7 @@ import random
 
 from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
 from src.diffusion.scheduler import diffusion_schedulers
+from src.diffusion.upscaler import upscale_image
 from tools.data.image import save_ai_generated_image
 
 
@@ -14,6 +15,8 @@ class Text2ImagePipeline:
                  model_type,
                  loras,
                  lora_location,
+                 upscaler,
+                 scale_factor=2,
                  batch_size=1,
                  scheduler_name='pndm',
                  num_inference_steps=50,
@@ -34,6 +37,8 @@ class Text2ImagePipeline:
         :param model_type: str
         :param loras: dict, lora model cfg
         :param lora_location: str, 'whole' for loading LoRA weights into both the UNet and text encoder, 'unet' for only the UNet.
+        :param upscaler:
+        :param scale_factor:
         :param batch_size:
         :param scheduler_name:
         :param num_inference_steps:
@@ -59,6 +64,8 @@ class Text2ImagePipeline:
         self.guidance_scale = guidance_scale
         self.clip_skip = clip_skip
         self.loras = loras
+        self.upscaler = upscaler
+        self.scale_factor = scale_factor
 
         # initialize the pipeline
         if self.model_type == 'Stable Diffusion 1.5':
@@ -96,7 +103,7 @@ class Text2ImagePipeline:
                              f"only {diffusion_schedulers.keys()} are supported.")
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
-    def __call__(self, show=False, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         params = {}
         if self.model_type == 'Stable Diffusion XL':
             params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
@@ -110,10 +117,10 @@ class Text2ImagePipeline:
                                       guidance_scale=self.guidance_scale,
                                       clip_skip=self.clip_skip,
                                       **params).images
+        output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
-        if show:
-            return output_images
+        return output_images
 
 
 def get_torch_generator(batch_size, input_random_seed):

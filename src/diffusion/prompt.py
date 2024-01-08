@@ -276,8 +276,3 @@ def convert_float_value_to_plus_and_minus(value: float, min_thresh: float = 0.01
             if abs(1.1 ** m - value) < min_thresh:
                 return '+' * m
             m += 1
-
-
-# if __name__ == '__main__':
-#     ret = a1111_parse_prompt_attention('(((simple background))),monochrome,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,lowres,bad anatomy,bad hands,text,error,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,ugly,pregnant,vore,duplicate,morbid,mut ilated,tran nsexual,hermaphrodite,long neck,mutated hands,poorly drawn hands,poorly drawn face,mutation,deformed,blurry,bad anatomy,bad proportions,malformed limbs,extra limbs,cloned face,disfigured,gross proportions,(((missing arms))),(((missing legs))),(((extra arms))),(((extra legs))),pubic hair,plump,bad legs,error legs,username,blurry,bad feet,')
-#     print(convert_a1111_prompt_weighting_to_compel_v2(ret))
