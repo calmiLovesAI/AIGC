@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 from tools.data.file_ops import get_absolute_path
 
@@ -19,9 +20,12 @@ def read_prompt(file_path):
         end -= 1
 
     prompt = ''.join(lines[start:end + 1])
-    prompt = remove_a1111_prompt_lora_description(prompt)
-    prompt = convert_a1111_prompt_weighting_to_compel(prompt, True)
+
+    # remove lora description
     prompt = remove_paired_brackets_in_string(prompt)
+    # convert a1111 format to compel
+    prompt_weight = a1111_parse_prompt_attention(prompt)
+    prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, False)
 
     return prompt
 
@@ -140,7 +144,7 @@ def convert_a1111_prompt_weighting_to_compel(prompt: str, keep_float_weight: boo
     return output
 
 
-def convert_prompt_to_filename(prompt, length=20):
+def get_filename_from_prompt(prompt, length=20):
     """
     This function takes a string, converts it to an underscore-separated string,
     and truncates it to the specified length (default is 20 characters).
@@ -152,3 +156,128 @@ def convert_prompt_to_filename(prompt, length=20):
     truncated_string = converted_string[:length]
 
     return truncated_string
+
+
+def a1111_parse_prompt_attention(text):
+    """
+    Derived from https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/prompt_parser.py
+    Parses a string with attention tokens and returns a list of pairs: text and its associated weight.
+    Accepted tokens are:
+      (abc) - increases attention to abc by a multiplier of 1.1
+      (abc:3.12) - increases attention to abc by a multiplier of 3.12
+      [abc] - decreases attention to abc by a multiplier of 1.1
+    """
+
+    re_attention = re.compile(r"""
+    \\\(|
+    \\\)|
+    \\\[|
+    \\]|
+    \\\\|
+    \\|
+    \(|
+    \[|
+    :\s*([+-]?[.\d]+)\s*\)|
+    \)|
+    ]|
+    [^\\()\[\]:]+|
+    :
+    """, re.X)
+
+    re_break = re.compile(r"\s*\bBREAK\b\s*", re.S)
+
+    res = []
+    round_brackets = []
+    square_brackets = []
+
+    round_bracket_multiplier = 1.1
+    square_bracket_multiplier = 1 / 1.1
+
+    def multiply_range(start_position, multiplier):
+        for p in range(start_position, len(res)):
+            res[p][1] *= multiplier
+
+    for m in re_attention.finditer(text):
+        text = m.group(0)
+        weight = m.group(1)
+
+        if text.startswith('\\'):
+            res.append([text[1:], 1.0])
+        elif text == '(':
+            round_brackets.append(len(res))
+        elif text == '[':
+            square_brackets.append(len(res))
+        elif weight is not None and round_brackets:
+            multiply_range(round_brackets.pop(), float(weight))
+        elif text == ')' and round_brackets:
+            multiply_range(round_brackets.pop(), round_bracket_multiplier)
+        elif text == ']' and square_brackets:
+            multiply_range(square_brackets.pop(), square_bracket_multiplier)
+        else:
+            parts = re.split(re_break, text)
+            for i, part in enumerate(parts):
+                if i > 0:
+                    res.append(["BREAK", -1])
+                res.append([part, 1.0])
+
+    for pos in round_brackets:
+        multiply_range(pos, round_bracket_multiplier)
+
+    for pos in square_brackets:
+        multiply_range(pos, square_bracket_multiplier)
+
+    if len(res) == 0:
+        res = [["", 1.0]]
+
+    # merge runs of identical weights
+    i = 0
+    while i + 1 < len(res):
+        if res[i][1] == res[i + 1][1]:
+            res[i][0] += res[i + 1][0]
+            res.pop(i + 1)
+        else:
+            i += 1
+
+    return res
+
+
+def convert_a1111_prompt_weighting_to_compel_v2(prompt_weight: List[List], keep_float_weight: bool = False) -> str:
+    num_parts = len(prompt_weight)
+    res = ""
+    for i in range(num_parts):
+        prompt = prompt_weight[i][0]
+        weight = round(prompt_weight[i][1], 2)
+        if keep_float_weight:
+            if weight == 1.0:
+                res += prompt
+            else:
+                res += f"({prompt}){weight}"
+        else:
+            if weight == 1.0:
+                res += prompt
+            else:
+                plus_and_minus = convert_float_value_to_plus_and_minus(value=weight)
+                res += f"({prompt}){plus_and_minus}"
+    return res
+
+
+def convert_float_value_to_plus_and_minus(value: float, min_thresh: float = 0.01) -> str:
+    if value == 1.0:
+        return ''
+    elif value < 1.0:
+        n = 0
+        while True:
+            if abs(0.9 ** n - value) < min_thresh:
+                return '-' * n
+            n += 1
+    else:
+        m = 0
+        while True:
+            if abs(1.1 ** m - value) < min_thresh:
+                return '+' * m
+            m += 1
+
+
+# if __name__ == '__main__':
+#     ret = a1111_parse_prompt_attention('(((simple background))),monochrome,lowres,bad anatomy,bad hands,text,error,missing fingers,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,lowres,bad anatomy,bad hands,text,error,extra digit,fewer digits,cropped,worst quality,low quality,normal quality,jpeg artifacts,signature,watermark,username,blurry,ugly,pregnant,vore,duplicate,morbid,mut ilated,tran nsexual,hermaphrodite,long neck,mutated hands,poorly drawn hands,poorly drawn face,mutation,deformed,blurry,bad anatomy,bad proportions,malformed limbs,extra limbs,cloned face,disfigured,gross proportions,(((missing arms))),(((missing legs))),(((extra arms))),(((extra legs))),pubic hair,plump,bad legs,error legs,username,blurry,bad feet,')
+#     print(convert_a1111_prompt_weighting_to_compel_v2(ret))

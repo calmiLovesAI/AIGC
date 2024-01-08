@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 from tools.data.file_ops import get_project_root, generate_random_filename, create_directory_if_not_exists
-from src.diffusion.prompt import convert_prompt_to_filename
+from src.diffusion.prompt import get_filename_from_prompt
 
 
 def read_image(image_path, mode='rgb'):
@@ -83,7 +83,7 @@ def save_ai_generated_image(image, seed, save_folder='./test_samples/diffusion',
 
     save_dir = create_directory_if_not_exists(cur_date_folder_path)
 
-    filename_prefix = convert_prompt_to_filename(prompt, length=30)
+    filename_prefix = get_filename_from_prompt(prompt, length=50)
     filename = generate_random_filename(file_type=filename_prefix, suffix=f"_seed={seed}.png")
 
     save_dir = os.path.join(save_dir, filename)
