@@ -23,4 +23,6 @@ def upscale_image(images, model, scale_factor=2, device=torch.device('cuda')):
         model.load_weights(model_path=upscaler_model)
         for img in images:
             sr_images.append(model.predict(lr_image=img))
+    else:
+        raise ValueError(f"{model} is not supported, only these algorithms are supported: {ALL_UPSCALERS}.")
     return sr_images

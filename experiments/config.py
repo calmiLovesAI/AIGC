@@ -14,6 +14,8 @@ txt2img_cfg = {
     'width': 512,
     'guidance_scale': 7.5,
     'clip_skip': 2,
+    'upscaler': 'Real ESRGAN',
+    'scale_factor': 2,
     'lora': {
         'enable': False,
         'civitai': False,
