@@ -1,6 +1,7 @@
 .idea
 .vscode
 __pycache__
+flagged
 /runs/
 /test_samples/
 /saves/
@@ -11,4 +12,3 @@ __pycache__
 /downloads/
 /experiments/*
 !/experiments/config.py
-/ui/flagged/*

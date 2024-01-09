@@ -4,7 +4,7 @@ from typing import List
 from tools.data.file_ops import get_absolute_path
 
 
-def read_prompt(file_path):
+def read_prompt_from_file(file_path):
     file_path = get_absolute_path(file_path)
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -21,12 +21,17 @@ def read_prompt(file_path):
 
     prompt = ''.join(lines[start:end + 1])
 
+    prompt = read_prompt_from_str(prompt)
+
+    return prompt
+
+
+def read_prompt_from_str(prompt: str) -> str:
     # remove lora description
     prompt = remove_paired_brackets_in_string(prompt)
     # convert a1111 format to compel
     prompt_weight = a1111_parse_prompt_attention(prompt)
-    prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, False)
-
+    prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
     return prompt
 
 
@@ -261,18 +266,18 @@ def convert_a1111_prompt_weighting_to_compel_v2(prompt_weight: List[List], keep_
     return res
 
 
-def convert_float_value_to_plus_and_minus(value: float, min_thresh: float = 0.01) -> str:
+def convert_float_value_to_plus_and_minus(value: float) -> str:
     if value == 1.0:
         return ''
     elif value < 1.0:
         n = 0
         while True:
-            if abs(0.9 ** n - value) < min_thresh:
+            if 0.9 ** n < value:
                 return '-' * n
             n += 1
     else:
         m = 0
         while True:
-            if abs(1.1 ** m - value) < min_thresh:
+            if 1.1 ** m > value:
                 return '+' * m
             m += 1
