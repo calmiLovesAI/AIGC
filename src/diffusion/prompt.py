@@ -28,7 +28,7 @@ def read_prompt_from_file(file_path):
 
 def read_prompt_from_str(prompt: str) -> str:
     # remove lora description
-    prompt = remove_paired_brackets_in_string(prompt)
+    prompt = remove_a1111_prompt_lora_description(prompt)
     # convert a1111 format to compel
     prompt_weight = a1111_parse_prompt_attention(prompt)
     prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
@@ -281,3 +281,4 @@ def convert_float_value_to_plus_and_minus(value: float) -> str:
             if 1.1 ** m > value:
                 return '+' * m
             m += 1
+

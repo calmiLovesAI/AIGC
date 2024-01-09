@@ -1,4 +1,5 @@
 import os
+import torch
 
 import gradio as gr
 
@@ -9,8 +10,6 @@ from src.diffusion.upscaler import ALL_UPSCALERS
 from tools.data.file_ops import get_absolute_path
 
 STABLE_DIFFUSION_MODEL_ROOT = './downloads/stable_diffusion/'
-
-txt2img_pipeline = None
 
 
 def run_txt2img(model, model_type, prompt, negative_prompt, scheduler,
@@ -23,7 +22,6 @@ def run_txt2img(model, model_type, prompt, negative_prompt, scheduler,
 
     model = get_absolute_path(relative_path=STABLE_DIFFUSION_MODEL_ROOT + model)
 
-    global txt2img_pipeline
     txt2img_pipeline = Text2ImagePipeline(prompt=prompt,
                                           negative_prompt=negative_prompt,
                                           model_name=model,
