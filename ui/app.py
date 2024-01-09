@@ -5,6 +5,7 @@ import torch
 
 import gradio as gr
 
+from scripts.text2image import get_model_filenames
 from src.diffusion.prompt import read_prompt_from_str
 from src.diffusion.scheduler import get_scheduler_names
 from src.diffusion.txt2img_pipeline import Text2ImagePipeline
@@ -12,6 +13,9 @@ from src.diffusion.upscaler import ALL_UPSCALERS
 from tools.data.file_ops import get_absolute_path
 
 STABLE_DIFFUSION_MODEL_ROOT = './downloads/stable_diffusion/'
+
+
+
 
 
 def run_txt2img(model, model_type, prompt, negative_prompt, scheduler,
@@ -45,23 +49,6 @@ def run_txt2img(model, model_type, prompt, negative_prompt, scheduler,
     outputs = txt2img_pipeline.__call__()
 
     return outputs
-
-
-def get_model_filenames(root_dir=STABLE_DIFFUSION_MODEL_ROOT, suffix='safetensors'):
-    """
-    Get all file names with the specified suffix in the root directory and return them.
-    :param root_dir:
-    :param suffix:
-    :return:
-    """
-    model_files = []
-    files = os.listdir(get_absolute_path(relative_path=root_dir))
-
-    for filename in files:
-        if filename.endswith(suffix):
-            model_files.append(filename)
-
-    return model_files
 
 
 def main():

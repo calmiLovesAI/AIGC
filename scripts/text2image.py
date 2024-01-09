@@ -1,30 +1,77 @@
+import os
+
 from experiments.config import project_cfg, txt2img_cfg
 from src.diffusion.lora import preprocess_lora_cfg
 from src.diffusion.prompt import read_prompt_from_file
 from src.diffusion.txt2img_pipeline import Text2ImagePipeline
 from tools.config_parser import load_task_cfg
+from tools.data.file_ops import get_absolute_path
 from tools.platform.device import get_device
 
-SUPPORT_MODELS = ['Stable Diffusion 1.5', 'Stable Diffusion XL']
 
-if __name__ == '__main__':
+def get_model_filenames(root_dir, suffix='safetensors'):
+    """
+    Get all file names with the specified suffix in the root directory and return them.
+    :param root_dir:
+    :param suffix:
+    :return:
+    """
+    model_files = []
+    files = os.listdir(get_absolute_path(relative_path=root_dir))
+
+    for filename in files:
+        if filename.endswith(suffix):
+            model_files.append(filename)
+
+    return model_files
+
+
+def set_model_type(cfg):
+    model_types = ['Stable Diffusion 1.5', 'Stable Diffusion XL']
+    print(f"================SUPPORTED MODEL TYPES==============")
+    for i, model_name in enumerate(model_types):
+        print(f"{i}: {model_name}")
+    user_input_model_index = input('Please input the index of text2image model type(n for ignore): ')
+    if user_input_model_index != 'n':
+        return model_types[int(user_input_model_index)]
+    return cfg.model_type
+
+
+def set_model(cfg):
+    root = './downloads/stable_diffusion/'
+    models = get_model_filenames(root)
+    print(f"==================SUPPORTED MODELS=================")
+    for i, elem in enumerate(models):
+        print(f"{i}: {elem}")
+    user_input_model_index = input('Please input the index of text2image model(n for ignore): ')
+    if user_input_model_index != 'n':
+        return os.path.join(root, models[int(user_input_model_index)])
+    return cfg.model
+
+
+def get_prompt(cfg):
+    prompt = read_prompt_from_file(cfg.prompt_file)
+    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file)
+    print(f"==================PROMPT=================")
+    print(prompt)
+    print(f"=============NEGATIVE PROMPT=============")
+    print(negative_prompt)
+    return prompt, negative_prompt
+
+
+def main():
     cfg = load_task_cfg(project_cfg, txt2img_cfg)
     device = get_device(cfg.device)
 
-    print("===========SUPPORTED MODELS==============")
-    for i, model_name in enumerate(SUPPORT_MODELS):
-        print(f"{i}: {model_name}")
-    user_input_model_index = int(input('Please input the index of text2image model: '))
+    model_type = set_model_type(cfg)
+    model = set_model(cfg)
+    prompt, negative_prompt = get_prompt(cfg)
 
-    prompt = read_prompt_from_file(cfg.prompt_file)
-    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file)
-    print(f"The prompt is \n{prompt}")
-    print(f"The negative prompt is \n{negative_prompt}")
     loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales, from_civitai=cfg.lora.civitai)
     pipeline = Text2ImagePipeline(prompt=prompt,
                                   negative_prompt=negative_prompt,
-                                  model_name=cfg.model,
-                                  model_type=SUPPORT_MODELS[user_input_model_index],
+                                  model_name=model,
+                                  model_type=model_type,
                                   loras=loras,
                                   lora_location=cfg.lora.location,
                                   upscaler=cfg.upscaler,
@@ -41,3 +88,7 @@ if __name__ == '__main__':
                                   requires_safety_checker=cfg.get('nsfw', True),
                                   device=device)
     pipeline.__call__()
+
+
+if __name__ == '__main__':
+    main()
