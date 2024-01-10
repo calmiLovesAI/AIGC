@@ -1,7 +1,6 @@
 .idea
 .vscode
 __pycache__
-flagged
 /runs/
 /test_samples/
 /saves/

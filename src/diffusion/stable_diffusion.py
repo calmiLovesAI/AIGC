@@ -107,6 +107,7 @@ def build_stable_diffusion_xl_pipeline(pretrained_model, loras, prompts, negativ
     """
     if os.path.isfile(pretrained_model):
         pretrained_model = get_absolute_path(pretrained_model)
+    print(pretrained_model)
     pipeline = StableDiffusionXLPipeline.from_single_file(pretrained_model,
                                                           use_safetensors=True,
                                                           load_safety_checker=requires_safety_checker).to(device)

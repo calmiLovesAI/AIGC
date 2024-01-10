@@ -1,6 +1,6 @@
 import torch
-from RealESRGAN import RealESRGAN
 
+from src.real_esrgan.real_esrgan import RealESRGAN
 from tools.data.file_ops import get_absolute_path
 
 REAL_ESRGAN_PATH = {
