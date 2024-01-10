@@ -156,6 +156,10 @@ def get_filename_from_prompt(prompt, length=20):
     """
     # Using regular expression to replace punctuation and spaces with underscores
     converted_string = re.sub(r'[\W\s]+', '_', prompt)
+    # Remove numbers
+    converted_string = re.sub(r'\d+', '', converted_string)
+    # Simplify multiple consecutive underscores to a single underscore
+    converted_string = re.sub(r'_{2,}', '_', converted_string)
 
     # Truncate the string to the specified length
     truncated_string = converted_string[:length]

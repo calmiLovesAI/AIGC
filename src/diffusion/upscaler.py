@@ -6,6 +6,7 @@ from tools.data.file_ops import get_absolute_path
 REAL_ESRGAN_PATH = {
     '2x': './downloads/upscaler/RealESRGAN_x2.pth',
     '4x': './downloads/upscaler/RealESRGAN_x4.pth',
+    '8x': './downloads/upscaler/RealESRGAN_x8.pth',
 }
 
 

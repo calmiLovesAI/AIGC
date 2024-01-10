@@ -52,9 +52,9 @@ def set_model(cfg):
 def get_prompt(cfg):
     prompt = read_prompt_from_file(cfg.prompt_file)
     negative_prompt = read_prompt_from_file(cfg.negative_prompt_file)
-    print(f"==================PROMPT=================")
+    print(f"\n==================PROMPT=================")
     print(prompt)
-    print(f"=============NEGATIVE PROMPT=============")
+    print(f"\n=============NEGATIVE PROMPT=============")
     print(negative_prompt)
     return prompt, negative_prompt
 
