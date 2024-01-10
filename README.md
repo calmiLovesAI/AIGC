@@ -11,15 +11,13 @@ git clone https://github.com/calmiLovesAI/AIGC.git
 cd AIGC
 pip install -r requirements.txt
 ```
-4. Install [Real-ESRGAN](https://github.com/ai-forever/Real-ESRGAN) as a upscaler, also download the model weights from the [HuggingFace page](https://huggingface.co/ai-forever/Real-ESRGAN)
-```commandline
-pip install git+https://github.com/sberbank-ai/Real-ESRGAN.git
-```
-5. Install huggingface-diffusers
+
+4. Install huggingface-diffusers
 ```commandline
 pip install --upgrade diffusers[torch]
 ```
-6. Download the pretrained model.
+
+5. Download [Real-ESRGAN](https://github.com/ai-forever/Real-ESRGAN)'s weights from the [HuggingFace page](https://huggingface.co/ai-forever/Real-ESRGAN)
 
 # Text to Image
 ## Start with terminal
@@ -28,9 +26,4 @@ pip install --upgrade diffusers[torch]
 3. Run the following in the root directory
 ```commandline
 python .\scripts\text2image.py -c .\experiments\txt2img.yaml
-```
-
-## Start with WebUI
-```commandline
-python .\ui\app.py
 ```
