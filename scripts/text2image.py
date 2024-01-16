@@ -75,6 +75,7 @@ def main():
                                   loras=loras,
                                   lora_location=cfg.lora.location,
                                   upscaler=cfg.upscaler,
+                                  output_path=cfg.output_root,
                                   scale_factor=cfg.scale_factor,
                                   batch_size=cfg.batch_size,
                                   scheduler_name=cfg.scheduler,

@@ -16,6 +16,7 @@ class Text2ImagePipeline:
                  loras,
                  lora_location,
                  upscaler,
+                 output_path,
                  scale_factor=2,
                  batch_size=1,
                  scheduler_name='pndm',
@@ -38,6 +39,7 @@ class Text2ImagePipeline:
         :param loras: dict, lora model cfg
         :param lora_location: str, 'whole' for loading LoRA weights into both the UNet and text encoder, 'unet' for only the UNet.
         :param upscaler:
+        :param output_path:
         :param scale_factor:
         :param batch_size:
         :param scheduler_name:
@@ -66,6 +68,7 @@ class Text2ImagePipeline:
         self.loras = loras
         self.upscaler = upscaler
         self.scale_factor = scale_factor
+        self.output_path = output_path
 
         # initialize the pipeline
         if self.model_type == 'Stable Diffusion 1.5':
@@ -119,7 +122,7 @@ class Text2ImagePipeline:
                                       **params).images
         output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):
-            save_ai_generated_image(image, seed=self.random_seeds[i], prompt=self.prompts[0])
+            save_ai_generated_image(image, seed=self.random_seeds[i], save_folder=self.output_path, prompt=self.prompts[0])
         return output_images
 
 

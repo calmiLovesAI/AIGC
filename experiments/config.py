@@ -1,8 +1,5 @@
 project_cfg = {
     'device': 'gpu',
-    'download_root': './downloads',
-    'lora_folder': 'lora',
-    'sd_folder': 'stable_diffusion',
     'output_root': './outputs'
 }
 
