@@ -26,3 +26,8 @@ txt2img_cfg = {
         'location': 'both',  # 'unet' or 'both' (both unet and text encoder)
     }
 }
+
+
+detection_cfg = {
+    'model': 'facebook/detr-resnet-50'
+}
