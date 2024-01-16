@@ -11,3 +11,4 @@ __pycache__
 /downloads/
 /experiments/*
 !/experiments/config.py
+/outputs/
