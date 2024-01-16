@@ -40,12 +40,16 @@ def set_model_type(cfg):
 def set_model(cfg):
     root = './downloads/stable_diffusion/'
     models = get_model_filenames(root)
+    models.append('from_huggingface')
     print(f"==================SUPPORTED MODELS=================")
     for i, elem in enumerate(models):
         print(f"{i}: {elem}")
     user_input_model_index = input('Please input the index of text2image model(n for ignore): ')
     if user_input_model_index != 'n':
-        return os.path.join(root, models[int(user_input_model_index)])
+        if user_input_model_index in [-1, len(models) - 1]:
+            return cfg.model
+        else:
+            return os.path.join(root, models[int(user_input_model_index)])
     return cfg.model
 
 
