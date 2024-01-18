@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from tools.data.file_ops import get_absolute_path
+from src.utils.file_ops import get_absolute_path
 
 
 def read_prompt_from_file(file_path):

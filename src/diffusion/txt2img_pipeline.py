@@ -4,7 +4,7 @@ import random
 from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
 from src.diffusion.scheduler import diffusion_schedulers
 from src.diffusion.upscaler import upscale_image
-from tools.data.image import save_ai_generated_image
+from src.utils.image import save_ai_generated_image
 
 
 class Text2ImagePipeline:

@@ -5,7 +5,7 @@ from compel import Compel, ReturnedEmbeddingsType
 from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
 from src.diffusion.lora import add_multiple_loras
-from tools.data.file_ops import get_absolute_path
+from src.utils.file_ops import get_absolute_path
 
 
 def build_stable_diffusion_pipeline(pretrained_model, loras, prompts, negative_prompts, use_lora=False,

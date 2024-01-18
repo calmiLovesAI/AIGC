@@ -4,8 +4,8 @@ import numpy as np
 import torch
 
 from PIL import Image
-from src.real_esrgan.rrdbnet_arch import RRDBNet
-from src.real_esrgan.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, unpad_image
+from src.impl.real_esrgan.rrdbnet_arch import RRDBNet
+from src.impl.real_esrgan.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, unpad_image
 
 
 class RealESRGAN:

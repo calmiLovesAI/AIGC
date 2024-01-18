@@ -1,8 +1,8 @@
 import os
 import argparse
 
-from tools.data.file_ops import get_absolute_path
-from tools.data.file_type import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
+from src.utils.file_ops import get_absolute_path
+from src.utils.file_type import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
 
 
 def delete_files(folder_path, extensions):

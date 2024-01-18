@@ -2,7 +2,7 @@ import cv2
 import random
 import numpy as np
 
-from tools.data.image import read_image
+from src.utils.image import read_image
 
 
 def display_in_window(image, tag="Resizable Image"):

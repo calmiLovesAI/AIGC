@@ -1,7 +1,7 @@
 import argparse
 import os.path
 
-from tools.data.file_ops import get_absolute_path
+from src.utils.file_ops import get_absolute_path
 from omegaconf import OmegaConf
 
 
