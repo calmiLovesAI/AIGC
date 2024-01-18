@@ -1,5 +1,5 @@
 from experiments.config import project_cfg, detection_cfg
-from src.detection.detection_2d import Detection2D
+from src.huggingface.detection_2d import Detection2D
 from src.utils.config_parser import load_task_cfg
 from src.utils.device import get_device
 

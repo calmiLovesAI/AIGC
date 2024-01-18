@@ -21,15 +21,15 @@ def display_in_window(image, tag="Resizable Image"):
 
 def display_detection_results_on_image(image, detection_results):
     """
-    Display the results of object detection on the picture.
+    Display the results of object huggingface on the picture.
     :param image: image path or image read through opencv
-    :param detection_results: The result of object detection has a similar format:
+    :param detection_results: The result of object huggingface has a similar format:
     [{'score': confidence(float), 'label': category label(str),
     'box': {'xmin': x coordinate of upper left corner(int),
             'ymin': y coordinate of upper left corner(int),
             'xmax': x coordinate of lower right corner(int),
             'ymax': y coordinate of lower right corner(int)}}, {...}, ...]
-    :return: image with detection results
+    :return: image with huggingface results
     """
     if isinstance(image, str):
         image = read_image(image, mode="bgr")
@@ -41,7 +41,7 @@ def display_detection_results_on_image(image, detection_results):
     random_colors = {label: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for index, label in
                      enumerate(set(item['label'] for item in detection_results))}
 
-    # Iterate through each detection result.
+    # Iterate through each huggingface result.
     for result in detection_results:
         label = result['label']
         score = result['score']
