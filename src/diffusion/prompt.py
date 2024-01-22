@@ -1,6 +1,8 @@
 import re
 from typing import List
 
+import torch
+
 from src.utils.file_ops import get_absolute_path
 
 
@@ -30,8 +32,8 @@ def read_prompt_from_str(prompt: str) -> str:
     # remove lora description
     prompt = remove_a1111_prompt_lora_description(prompt)
     # convert a1111 format to compel
-    prompt_weight = a1111_parse_prompt_attention(prompt)
-    prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
+    # prompt_weight = a1111_parse_prompt_attention(prompt)
+    # prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
     return prompt
 
 
@@ -286,3 +288,111 @@ def convert_float_value_to_plus_and_minus(value: float) -> str:
                 return '+' * m
             m += 1
 
+
+################################################################################################################
+# The following code is derived from https://github.com/damian0815/compel/issues/59#issuecomment-1696031827
+
+
+def concat_tensor(t):
+    t_list = torch.split(t, 1, dim=0)
+    t = torch.cat(t_list, dim=1)
+    return t
+
+
+def merge_embeds(prompt_chunks, compel):
+    num_chunks = len(prompt_chunks)
+    if num_chunks != 0:
+        power_prompt = 1 / (num_chunks * (num_chunks + 1) // 2)
+        prompt_embs = compel(prompt_chunks)
+        t_list = list(torch.split(prompt_embs, 1, dim=0))
+        for i in range(num_chunks):
+            t_list[-(i + 1)] = t_list[-(i + 1)] * ((i + 1) * power_prompt)
+        prompt_emb = torch.stack(t_list, dim=0).sum(dim=0)
+    else:
+        prompt_emb = compel('')
+    return prompt_emb
+
+
+def detokenize(chunk, actual_prompt):
+    chunk[-1] = chunk[-1].replace('</w>', '')
+    chanked_prompt = ''.join(chunk).strip()
+    while '</w>' in chanked_prompt:
+        if actual_prompt[chanked_prompt.find('</w>')] == ' ':
+            chanked_prompt = chanked_prompt.replace('</w>', ' ', 1)
+        else:
+            chanked_prompt = chanked_prompt.replace('</w>', '', 1)
+    actual_prompt = actual_prompt.replace(chanked_prompt, '')
+    return chanked_prompt.strip(), actual_prompt.strip()
+
+
+def tokenize_line(line, tokenizer):  # split into chunks
+    actual_prompt = line.lower().strip()
+    actual_tokens = tokenizer.tokenize(actual_prompt)
+    max_tokens = tokenizer.model_max_length - 2
+    comma_token = tokenizer.tokenize(',')[0]
+
+    chunks = []
+    chunk = []
+    for item in actual_tokens:
+        chunk.append(item)
+        if len(chunk) == max_tokens:
+            if chunk[-1] != comma_token:
+                for i in range(max_tokens - 1, -1, -1):
+                    if chunk[i] == comma_token:
+                        actual_chunk, actual_prompt = detokenize(chunk[:i + 1], actual_prompt)
+                        chunks.append(actual_chunk)
+                        chunk = chunk[i + 1:]
+                        break
+                else:
+                    actual_chunk, actual_prompt = detokenize(chunk, actual_prompt)
+                    chunks.append(actual_chunk)
+                    chunk = []
+            else:
+                actual_chunk, actual_prompt = detokenize(chunk, actual_prompt)
+                chunks.append(actual_chunk)
+                chunk = []
+    if chunk:
+        actual_chunk, _ = detokenize(chunk, actual_prompt)
+        chunks.append(actual_chunk)
+
+    return chunks
+
+
+def get_embed_new(prompt, pipeline, compel):
+    attention = a1111_parse_prompt_attention(prompt)
+    global_attention_chunks = []
+
+    for att in attention:
+        for chunk in att[0].split(','):
+            temp_prompt_chunks = tokenize_line(chunk, pipeline.tokenizer)
+            for small_chunk in temp_prompt_chunks:
+                temp_dict = {
+                    "weight": round(att[1], 2),
+                    "length": len(pipeline.tokenizer.tokenize(f'{small_chunk},')),
+                    "prompt": f'{small_chunk},'
+                }
+                global_attention_chunks.append(temp_dict)
+
+    max_tokens = pipeline.tokenizer.model_max_length - 2
+    global_prompt_chunks = []
+    current_list = []
+    current_length = 0
+    for item in global_attention_chunks:
+        if current_length + item['length'] > max_tokens:
+            global_prompt_chunks.append(current_list)
+            current_list = [[item['prompt'], item['weight']]]
+            current_length = item['length']
+        else:
+            if not current_list:
+                current_list.append([item['prompt'], item['weight']])
+            else:
+                if item['weight'] != current_list[-1][1]:
+                    current_list.append([item['prompt'], item['weight']])
+                else:
+                    current_list[-1][0] += f" {item['prompt']}"
+            current_length += item['length']
+    if current_list:
+        global_prompt_chunks.append(current_list)
+
+    return merge_embeds(
+        [convert_a1111_prompt_weighting_to_compel_v2(i, keep_float_weight=True) for i in global_prompt_chunks], compel)

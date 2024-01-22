@@ -5,6 +5,7 @@ from compel import Compel, ReturnedEmbeddingsType
 from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
 from src.diffusion.lora import add_multiple_loras
+from src.diffusion.prompt import get_embed_new
 from src.utils.file_ops import get_absolute_path
 
 
@@ -67,11 +68,13 @@ def compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts):
                          truncate_long_prompts=False)
 
     with torch.no_grad():
-        conditioning = compel_proc(prompts)
-        negative_conditioning = compel_proc(negative_prompts)
-        [prompt_embeddings,
-         negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
-            [conditioning, negative_conditioning])
+        # conditioning = compel_proc(prompts)
+        # negative_conditioning = compel_proc(negative_prompts)
+        # [prompt_embeddings,
+        #  negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
+        #     [conditioning, negative_conditioning])
+        prompt_embeddings = get_embed_new(prompts[0], pipeline, compel_proc)
+        negative_prompt_embeddings = get_embed_new(negative_prompts[0], pipeline, compel_proc)
     return prompt_embeddings, negative_prompt_embeddings
 
 

@@ -1,5 +1,5 @@
 from diffusers import EulerDiscreteScheduler, PNDMScheduler, DPMSolverMultistepScheduler, \
-    EulerAncestralDiscreteScheduler
+    EulerAncestralDiscreteScheduler, DPMSolverSinglestepScheduler
 
 __all__ = [
     'diffusion_schedulers',
@@ -15,6 +15,7 @@ diffusion_schedulers = {
                                                        use_karras_sigmas=True),
     'Euler': EulerDiscreteScheduler,
     'Euler a': EulerAncestralDiscreteScheduler,
+    'DPM++ SDE Karras': DPMSolverSinglestepScheduler(use_karras_sigmas=True),
 }
 
 

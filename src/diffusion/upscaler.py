@@ -1,14 +1,13 @@
 import torch
 
-from src.vision.real_esrgan import RealESRGAN
 from src.utils.file_ops import get_absolute_path
+from src.vision.real_esrgan.real_esrgan import RealESRGAN
 
 REAL_ESRGAN_PATH = {
     '2x': './downloads/upscaler/RealESRGAN_x2.pth',
     '4x': './downloads/upscaler/RealESRGAN_x4.pth',
     '8x': './downloads/upscaler/RealESRGAN_x8.pth',
 }
-
 
 ALL_UPSCALERS = [
     'Real ESRGAN'
