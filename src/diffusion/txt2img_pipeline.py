@@ -76,16 +76,10 @@ class Text2ImagePipeline:
 
         # initialize the pipeline
         if self.model_type == 'Stable Diffusion 1.5':
-            components = build_stable_diffusion_pipeline(model_name, loras, prompts=self.prompts,
-                                                         negative_prompts=self.negative_prompts,
-                                                         use_lora=use_lora,
-                                                         requires_safety_checker=requires_safety_checker,
-                                                         device=device,
-                                                         use_reimplemented_lpw=use_lpw,
-                                                         clip_skip=clip_skip)
-            self.pipeline = components['pipeline']
-            self.prompt_embeddings = components['prompt_embeddings']
-            self.negative_prompt_embeddings = components['negative_prompt_embeddings']
+            self.pipeline = build_stable_diffusion_pipeline(model_name, loras,
+                                                            use_lora=use_lora,
+                                                            requires_safety_checker=requires_safety_checker,
+                                                            device=device)
         elif self.model_type == 'Stable Diffusion XL':
             components = build_stable_diffusion_xl_pipeline(model_name, loras, prompts=self.prompts,
                                                             negative_prompts=self.negative_prompts,
@@ -118,17 +112,16 @@ class Text2ImagePipeline:
             params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
                            'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds,
                            'clip_skip': self.clip_skip})
-        if not self.use_lpw and self.model_type == 'Stable Diffusion 1.5':
-            params.update({'clip_skip': self.clip_skip})
 
-        output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
-                                      negative_prompt_embeds=self.negative_prompt_embeddings,
+        output_images = self.pipeline(prompt=self.prompts,
+                                      negative_prompt=self.negative_prompts,
                                       generator=self.generator,
                                       num_inference_steps=self.num_inference_steps,
                                       height=self.height,
                                       width=self.width,
                                       guidance_scale=self.guidance_scale,
                                       **params).images
+
         output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], save_folder=self.output_path,
