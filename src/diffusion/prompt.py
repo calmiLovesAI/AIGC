@@ -1,3 +1,4 @@
+import math
 import re
 from typing import List
 
@@ -6,7 +7,7 @@ import torch
 from src.utils.file_ops import get_absolute_path
 
 
-def read_prompt_from_file(file_path):
+def read_prompt_from_file(file_path, lpw):
     file_path = get_absolute_path(file_path)
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -23,17 +24,18 @@ def read_prompt_from_file(file_path):
 
     prompt = ''.join(lines[start:end + 1])
 
-    prompt = read_prompt_from_str(prompt)
+    prompt = read_prompt_from_str(prompt, lpw)
 
     return prompt
 
 
-def read_prompt_from_str(prompt: str) -> str:
+def read_prompt_from_str(prompt: str, lpw: bool) -> str:
     # remove lora description
     prompt = remove_a1111_prompt_lora_description(prompt)
     # convert a1111 format to compel
-    # prompt_weight = a1111_parse_prompt_attention(prompt)
-    # prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
+    if not lpw:
+        prompt_weight = parse_prompt_attention(prompt)
+        prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
     return prompt
 
 
@@ -169,7 +171,7 @@ def get_filename_from_prompt(prompt, length=20):
     return truncated_string
 
 
-def a1111_parse_prompt_attention(text):
+def parse_prompt_attention(text):
     """
     Derived from https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/prompt_parser.py
     Parses a string with attention tokens and returns a list of pairs: text and its associated weight.
@@ -289,110 +291,160 @@ def convert_float_value_to_plus_and_minus(value: float) -> str:
             m += 1
 
 
-################################################################################################################
-# The following code is derived from https://github.com/damian0815/compel/issues/59#issuecomment-1696031827
+###########################################################################################################################
+
+# The following code is derived from https://gist.github.com/takuma104/43552b8ec70b63323c57dc9c6fcb9b90
 
 
-def concat_tensor(t):
-    t_list = torch.split(t, 1, dim=0)
-    t = torch.cat(t_list, dim=1)
-    return t
+class CLIPTextCustomEmbedder:
+    def __init__(self,
+                 tokenizer,
+                 text_encoder,
+                 device,
+                 clip_stop_at_last_layers=1):
+        self.tokenizer = tokenizer
+        self.text_encoder = text_encoder
+        self.token_mults = {}
+        self.device = device
+        self.clip_stop_at_last_layers = clip_stop_at_last_layers
+
+    def tokenize_line(self, line):
+        def get_target_prompt_token_count(token_count):
+            return math.ceil(max(token_count, 1) / 75) * 75
+
+        id_end = self.tokenizer.eos_token_id
+        parsed = parse_prompt_attention(line)
+        tokenized = self.tokenizer(
+            [text for text, _ in parsed], truncation=False,
+            add_special_tokens=False)["input_ids"]
+
+        fixes = []
+        remade_tokens = []
+        multipliers = []
+
+        for tokens, (text, weight) in zip(tokenized, parsed):
+            i = 0
+            while i < len(tokens):
+                token = tokens[i]
+                remade_tokens.append(token)
+                multipliers.append(weight)
+                i += 1
+
+        token_count = len(remade_tokens)
+        prompt_target_length = get_target_prompt_token_count(token_count)
+        tokens_to_add = prompt_target_length - len(remade_tokens)
+        remade_tokens = remade_tokens + [id_end] * tokens_to_add
+        multipliers = multipliers + [1.0] * tokens_to_add
+        return remade_tokens, fixes, multipliers, token_count
+
+    def process_text(self, texts):
+        if isinstance(texts, str):
+            texts = [texts]
+
+        remade_batch_tokens = []
+        cache = {}
+        batch_multipliers = []
+        for line in texts:
+            if line in cache:
+                remade_tokens, fixes, multipliers = cache[line]
+            else:
+                remade_tokens, fixes, multipliers, _ = self.tokenize_line(line)
+                cache[line] = (remade_tokens, fixes, multipliers)
+
+            remade_batch_tokens.append(remade_tokens)
+            batch_multipliers.append(multipliers)
+
+        return batch_multipliers, remade_batch_tokens
+
+    def __call__(self, text):
+        batch_multipliers, remade_batch_tokens = self.process_text(text)
+
+        z = None
+        i = 0
+        while max(map(len, remade_batch_tokens)) != 0:
+            rem_tokens = [x[75:] for x in remade_batch_tokens]
+            rem_multipliers = [x[75:] for x in batch_multipliers]
+
+            tokens = []
+            multipliers = []
+            for j in range(len(remade_batch_tokens)):
+                if len(remade_batch_tokens[j]) > 0:
+                    tokens.append(remade_batch_tokens[j][:75])
+                    multipliers.append(batch_multipliers[j][:75])
+                else:
+                    tokens.append([self.tokenizer.eos_token_id] * 75)
+                    multipliers.append([1.0] * 75)
+
+            z1 = self.process_tokens(tokens, multipliers)
+            z = z1 if z is None else torch.cat((z, z1), dim=-2)
+
+            remade_batch_tokens = rem_tokens
+            batch_multipliers = rem_multipliers
+            i += 1
+
+        return z
+
+    def process_tokens(self, remade_batch_tokens, batch_multipliers):
+        remade_batch_tokens = [[self.tokenizer.bos_token_id] + x[:75] +
+                               [self.tokenizer.eos_token_id] for x in remade_batch_tokens]
+        batch_multipliers = [[1.0] + x[:75] + [1.0] for x in batch_multipliers]
+
+        tokens = torch.asarray(remade_batch_tokens).to(self.device)
+        # print(tokens.shape)
+        # print(tokens)
+        outputs = self.text_encoder(
+            input_ids=tokens, output_hidden_states=True)
+
+        if self.clip_stop_at_last_layers > 1:
+            z = self.text_encoder.text_model.final_layer_norm(
+                outputs.hidden_states[-self.clip_stop_at_last_layers])
+        else:
+            z = outputs.last_hidden_state
+
+        # restoring original mean is likely not correct, but it seems to work well
+        # to prevent artifacts that happen otherwise
+        batch_multipliers_of_same_length = [
+            x + [1.0] * (75 - len(x)) for x in batch_multipliers]
+        batch_multipliers = torch.asarray(
+            batch_multipliers_of_same_length).to(self.device)
+        # print(batch_multipliers.shape)
+        # print(batch_multipliers)
+
+        original_mean = z.mean()
+        z *= batch_multipliers.reshape(batch_multipliers.shape +
+                                       (1,)).expand(z.shape)
+        new_mean = z.mean()
+        z *= original_mean / new_mean
+
+        return z
+
+    def get_text_tokens(self, text):
+        batch_multipliers, remade_batch_tokens = self.process_text(text)
+        return [[self.tokenizer.bos_token_id] + remade_batch_tokens[0]], \
+            [[1.0] + batch_multipliers[0]]
 
 
-def merge_embeds(prompt_chunks, compel):
-    num_chunks = len(prompt_chunks)
-    if num_chunks != 0:
-        power_prompt = 1 / (num_chunks * (num_chunks + 1) // 2)
-        prompt_embs = compel(prompt_chunks)
-        t_list = list(torch.split(prompt_embs, 1, dim=0))
-        for i in range(num_chunks):
-            t_list[-(i + 1)] = t_list[-(i + 1)] * ((i + 1) * power_prompt)
-        prompt_emb = torch.stack(t_list, dim=0).sum(dim=0)
+def text_embeddings_equal_len(text_embedder, prompt, negative_prompt):
+    cond_embeddings = text_embedder(prompt)
+    uncond_embeddings = text_embedder(negative_prompt)
+
+    cond_len = cond_embeddings.shape[1]
+    uncond_len = uncond_embeddings.shape[1]
+    if cond_len == uncond_len:
+        return cond_embeddings, uncond_embeddings
     else:
-        prompt_emb = compel('')
-    return prompt_emb
-
-
-def detokenize(chunk, actual_prompt):
-    chunk[-1] = chunk[-1].replace('</w>', '')
-    chanked_prompt = ''.join(chunk).strip()
-    while '</w>' in chanked_prompt:
-        if actual_prompt[chanked_prompt.find('</w>')] == ' ':
-            chanked_prompt = chanked_prompt.replace('</w>', ' ', 1)
+        if cond_len > uncond_len:
+            n = (cond_len - uncond_len) // 77
+            return cond_embeddings, torch.cat([uncond_embeddings] + [text_embedder("")] * n, dim=1)
         else:
-            chanked_prompt = chanked_prompt.replace('</w>', '', 1)
-    actual_prompt = actual_prompt.replace(chanked_prompt, '')
-    return chanked_prompt.strip(), actual_prompt.strip()
+            n = (uncond_len - cond_len) // 77
+            return torch.cat([cond_embeddings] + [text_embedder("")] * n, dim=1), uncond_embeddings
 
 
-def tokenize_line(line, tokenizer):  # split into chunks
-    actual_prompt = line.lower().strip()
-    actual_tokens = tokenizer.tokenize(actual_prompt)
-    max_tokens = tokenizer.model_max_length - 2
-    comma_token = tokenizer.tokenize(',')[0]
-
-    chunks = []
-    chunk = []
-    for item in actual_tokens:
-        chunk.append(item)
-        if len(chunk) == max_tokens:
-            if chunk[-1] != comma_token:
-                for i in range(max_tokens - 1, -1, -1):
-                    if chunk[i] == comma_token:
-                        actual_chunk, actual_prompt = detokenize(chunk[:i + 1], actual_prompt)
-                        chunks.append(actual_chunk)
-                        chunk = chunk[i + 1:]
-                        break
-                else:
-                    actual_chunk, actual_prompt = detokenize(chunk, actual_prompt)
-                    chunks.append(actual_chunk)
-                    chunk = []
-            else:
-                actual_chunk, actual_prompt = detokenize(chunk, actual_prompt)
-                chunks.append(actual_chunk)
-                chunk = []
-    if chunk:
-        actual_chunk, _ = detokenize(chunk, actual_prompt)
-        chunks.append(actual_chunk)
-
-    return chunks
-
-
-def get_embed_new(prompt, pipeline, compel):
-    attention = a1111_parse_prompt_attention(prompt)
-    global_attention_chunks = []
-
-    for att in attention:
-        for chunk in att[0].split(','):
-            temp_prompt_chunks = tokenize_line(chunk, pipeline.tokenizer)
-            for small_chunk in temp_prompt_chunks:
-                temp_dict = {
-                    "weight": round(att[1], 2),
-                    "length": len(pipeline.tokenizer.tokenize(f'{small_chunk},')),
-                    "prompt": f'{small_chunk},'
-                }
-                global_attention_chunks.append(temp_dict)
-
-    max_tokens = pipeline.tokenizer.model_max_length - 2
-    global_prompt_chunks = []
-    current_list = []
-    current_length = 0
-    for item in global_attention_chunks:
-        if current_length + item['length'] > max_tokens:
-            global_prompt_chunks.append(current_list)
-            current_list = [[item['prompt'], item['weight']]]
-            current_length = item['length']
-        else:
-            if not current_list:
-                current_list.append([item['prompt'], item['weight']])
-            else:
-                if item['weight'] != current_list[-1][1]:
-                    current_list.append([item['prompt'], item['weight']])
-                else:
-                    current_list[-1][0] += f" {item['prompt']}"
-            current_length += item['length']
-    if current_list:
-        global_prompt_chunks.append(current_list)
-
-    return merge_embeds(
-        [convert_a1111_prompt_weighting_to_compel_v2(i, keep_float_weight=True) for i in global_prompt_chunks], compel)
+def text_embeddings(pipe, prompt, negative_prompt, clip_stop_at_last_layers=1):
+    text_embedder = CLIPTextCustomEmbedder(tokenizer=pipe.tokenizer,
+                                           text_encoder=pipe.text_encoder,
+                                           device=pipe.text_encoder.device,
+                                           clip_stop_at_last_layers=clip_stop_at_last_layers)
+    cond_embeddings, uncond_embeddings = text_embeddings_equal_len(text_embedder, prompt, negative_prompt)
+    return cond_embeddings, uncond_embeddings

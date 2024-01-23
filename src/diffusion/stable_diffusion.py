@@ -5,12 +5,12 @@ from compel import Compel, ReturnedEmbeddingsType
 from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.prompt import get_embed_new
+from src.diffusion.prompt import text_embeddings
 from src.utils.file_ops import get_absolute_path
 
 
 def build_stable_diffusion_pipeline(pretrained_model, loras, prompts, negative_prompts, use_lora=False,
-                                    requires_safety_checker=True, device='cuda'):
+                                    requires_safety_checker=True, device='cuda', use_reimplemented_lpw=False, clip_skip=2):
     """
     Build a Stable Diffusion 1.5 pipeline
     :param pretrained_model: str or os.PathLike, A link to the .ckpt file on the hub or a path to a file containing all pipeline weights.
@@ -20,6 +20,7 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, prompts, negative_p
     :param use_lora: bool, whether to load lora weights.
     :param requires_safety_checker: bool
     :param device:
+    :param use_reimplemented_lpw: bool
     :return:
     """
     if os.path.isfile(pretrained_model):
@@ -46,7 +47,10 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, prompts, negative_p
     pipeline.enable_xformers_memory_efficient_attention()
 
     # prompt weighting
-    prompt_embeddings, negative_prompt_embeddings = compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts)
+    if use_reimplemented_lpw:
+        prompt_embeddings, negative_prompt_embeddings = text_embeddings(pipeline, prompts, negative_prompts, clip_stop_at_last_layers=clip_skip)
+    else:
+        prompt_embeddings, negative_prompt_embeddings = compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts)
 
     return {
         'pipeline': pipeline,
@@ -68,13 +72,11 @@ def compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts):
                          truncate_long_prompts=False)
 
     with torch.no_grad():
-        # conditioning = compel_proc(prompts)
-        # negative_conditioning = compel_proc(negative_prompts)
-        # [prompt_embeddings,
-        #  negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
-        #     [conditioning, negative_conditioning])
-        prompt_embeddings = get_embed_new(prompts[0], pipeline, compel_proc)
-        negative_prompt_embeddings = get_embed_new(negative_prompts[0], pipeline, compel_proc)
+        conditioning = compel_proc(prompts)
+        negative_conditioning = compel_proc(negative_prompts)
+        [prompt_embeddings,
+         negative_prompt_embeddings] = compel_proc.pad_conditioning_tensors_to_same_length(
+            [conditioning, negative_conditioning])
     return prompt_embeddings, negative_prompt_embeddings
 
 

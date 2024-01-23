@@ -53,9 +53,9 @@ def set_model(cfg):
     return cfg.model
 
 
-def get_prompt(cfg):
-    prompt = read_prompt_from_file(cfg.prompt_file)
-    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file)
+def get_prompt(cfg, lpw=True):
+    prompt = read_prompt_from_file(cfg.prompt_file, lpw)
+    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file, lpw)
     print(f"\n==================PROMPT=================")
     print(prompt)
     print(f"\n=============NEGATIVE PROMPT=============")
@@ -90,6 +90,7 @@ def main():
                                   guidance_scale=cfg.guidance_scale,
                                   clip_skip=cfg.clip_skip,
                                   use_lora=cfg.lora.enable,
+                                  use_lpw=cfg.get('lpw', True),
                                   requires_safety_checker=cfg.get('nsfw', True),
                                   device=device)
     pipeline.__call__()

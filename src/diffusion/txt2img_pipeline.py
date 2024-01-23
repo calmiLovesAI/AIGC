@@ -28,6 +28,7 @@ class Text2ImagePipeline:
                  clip_skip=2,
                  use_fp16=False,
                  use_lora=True,
+                 use_lpw=True,
                  requires_safety_checker=True,
                  device=torch.device('cuda')):
         """
@@ -53,6 +54,8 @@ class Text2ImagePipeline:
         :param clip_skip: int, default 2. Number of layers to be skipped from CLIP while computing the prompt embeddings.
                           A value of 1 means that the output of the pre-final layer will be used for computing the prompt embeddings.
         :param use_fp16:
+        :param use_lora:
+        :param use_lpw:
         :param requires_safety_checker: bool, default True.
         :param device:
         """
@@ -69,6 +72,7 @@ class Text2ImagePipeline:
         self.upscaler = upscaler
         self.scale_factor = scale_factor
         self.output_path = output_path
+        self.use_lpw = use_lpw
 
         # initialize the pipeline
         if self.model_type == 'Stable Diffusion 1.5':
@@ -76,7 +80,9 @@ class Text2ImagePipeline:
                                                          negative_prompts=self.negative_prompts,
                                                          use_lora=use_lora,
                                                          requires_safety_checker=requires_safety_checker,
-                                                         device=device)
+                                                         device=device,
+                                                         use_reimplemented_lpw=use_lpw,
+                                                         clip_skip=clip_skip)
             self.pipeline = components['pipeline']
             self.prompt_embeddings = components['prompt_embeddings']
             self.negative_prompt_embeddings = components['negative_prompt_embeddings']
@@ -110,7 +116,11 @@ class Text2ImagePipeline:
         params = {}
         if self.model_type == 'Stable Diffusion XL':
             params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
-                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds})
+                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds,
+                           'clip_skip': self.clip_skip})
+        if not self.use_lpw and self.model_type == 'Stable Diffusion 1.5':
+            params.update({'clip_skip': self.clip_skip})
+
         output_images = self.pipeline(prompt_embeds=self.prompt_embeddings,
                                       negative_prompt_embeds=self.negative_prompt_embeddings,
                                       generator=self.generator,
@@ -118,11 +128,11 @@ class Text2ImagePipeline:
                                       height=self.height,
                                       width=self.width,
                                       guidance_scale=self.guidance_scale,
-                                      clip_skip=self.clip_skip,
                                       **params).images
         output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):
-            save_ai_generated_image(image, seed=self.random_seeds[i], save_folder=self.output_path, prompt=self.prompts[0])
+            save_ai_generated_image(image, seed=self.random_seeds[i], save_folder=self.output_path,
+                                    prompt=self.prompts[0])
         return output_images
 
 
