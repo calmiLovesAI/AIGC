@@ -110,8 +110,7 @@ class Text2ImagePipeline:
         params = {}
         if self.model_type == 'Stable Diffusion XL':
             params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
-                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds,
-                           'clip_skip': self.clip_skip})
+                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds})
 
         output_images = self.pipeline(prompt=self.prompts,
                                       negative_prompt=self.negative_prompts,
@@ -120,6 +119,7 @@ class Text2ImagePipeline:
                                       height=self.height,
                                       width=self.width,
                                       guidance_scale=self.guidance_scale,
+                                      clip_skip=self.clip_skip,
                                       **params).images
 
         output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)

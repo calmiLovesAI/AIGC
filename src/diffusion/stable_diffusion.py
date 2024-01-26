@@ -5,7 +5,7 @@ from compel import Compel, ReturnedEmbeddingsType
 from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
 from src.diffusion.lora import add_multiple_loras
-from src.diffusion.sd_lpw import StableDiffusionLongPromptWeightingPipeline
+from src.diffusion.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeline
 from src.utils.file_ops import get_absolute_path
 
 
@@ -44,18 +44,6 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,
     pipeline.enable_xformers_memory_efficient_attention()
 
     return pipeline
-
-    # prompt weighting
-    # if use_reimplemented_lpw:
-    #     prompt_embeddings, negative_prompt_embeddings = text_embeddings(pipeline, prompts, negative_prompts, clip_stop_at_last_layers=clip_skip)
-    # else:
-    # prompt_embeddings, negative_prompt_embeddings = compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts)
-
-    # return {
-    #     'pipeline': pipeline,
-    #     'prompt_embeddings': prompt_embeddings,
-    #     'negative_prompt_embeddings': negative_prompt_embeddings
-    # }
 
 
 def compel_prompt_weighting_for_sd(pipeline, prompts, negative_prompts):

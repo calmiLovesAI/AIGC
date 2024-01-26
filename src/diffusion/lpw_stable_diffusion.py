@@ -215,7 +215,12 @@ def get_unweighted_text_embeddings(
             # cover the head and the tail by the starting and the ending tokens
             text_input_chunk[:, 0] = text_input[0, 0]
             text_input_chunk[:, -1] = text_input[0, -1]
-            text_embedding = pipe.text_encoder(text_input_chunk)[0]
+            if clip_skip is None:
+                text_embedding = pipe.text_encoder(text_input_chunk)[0]
+            else:
+                text_embedding = pipe.text_encoder(text_input_chunk, output_hidden_states=True)
+                text_embedding = text_embedding[-1][-(clip_skip + 1)]
+                text_embedding = pipe.text_encoder.text_model.final_layer_norm(text_embedding)
 
             if no_boseos_middle:
                 if i == 0:
@@ -231,7 +236,12 @@ def get_unweighted_text_embeddings(
             text_embeddings.append(text_embedding)
         text_embeddings = torch.concat(text_embeddings, dim=1)
     else:
-        text_embeddings = pipe.text_encoder(text_input)[0]
+        if clip_skip is None:
+            text_embeddings = pipe.text_encoder(text_input)[0]
+        else:
+            text_embeddings = pipe.text_encoder(text_input, output_hidden_states=True)
+            text_embeddings = text_embeddings[-1][-(clip_skip + 1)]
+            text_embeddings = pipe.text_encoder.text_model.final_layer_norm(text_embeddings)
     return text_embeddings
 
 
