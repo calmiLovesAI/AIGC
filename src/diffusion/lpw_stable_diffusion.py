@@ -1163,6 +1163,7 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback: Optional[Callable[[], bool]] = None,
             callback_steps: int = 1,
             cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            clip_skip: Optional[int] = None,
     ):
         r"""
         Function for text-to-image generation.
@@ -1225,6 +1226,9 @@ class StableDiffusionLongPromptWeightingPipeline(
                 A kwargs dictionary that if specified is passed along to the `AttentionProcessor` as defined under
                 `self.processor` in
                 [diffusers.models.attention_processor](https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/attention_processor.py).
+            clip_skip (`int`, *optional*):
+                Number of layers to be skipped from CLIP while computing the prompt embeddings. A value of 1 means that
+                the output of the pre-final layer will be used for computing the prompt embeddings.
 
         Returns:
             `None` if cancelled by `is_cancelled_callback`,
@@ -1254,6 +1258,7 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback=is_cancelled_callback,
             callback_steps=callback_steps,
             cross_attention_kwargs=cross_attention_kwargs,
+            clip_skip=clip_skip,
         )
 
     def img2img(
@@ -1276,6 +1281,7 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback: Optional[Callable[[], bool]] = None,
             callback_steps: int = 1,
             cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            clip_skip: Optional[int] = None,
     ):
         r"""
         Function for image-to-image generation.
@@ -1366,6 +1372,7 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback=is_cancelled_callback,
             callback_steps=callback_steps,
             cross_attention_kwargs=cross_attention_kwargs,
+            clip_skip=clip_skip,
         )
 
     def inpaint(
@@ -1390,6 +1397,7 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback: Optional[Callable[[], bool]] = None,
             callback_steps: int = 1,
             cross_attention_kwargs: Optional[Dict[str, Any]] = None,
+            clip_skip: Optional[int] = None,
     ):
         r"""
         Function for inpaint.
@@ -1460,6 +1468,9 @@ class StableDiffusionLongPromptWeightingPipeline(
                 A kwargs dictionary that if specified is passed along to the `AttentionProcessor` as defined under
                 `self.processor` in
                 [diffusers.models.attention_processor](https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/attention_processor.py).
+            clip_skip (`int`, *optional*):
+                Number of layers to be skipped from CLIP while computing the prompt embeddings. A value of 1 means that
+                the output of the pre-final layer will be used for computing the prompt embeddings.
 
         Returns:
             `None` if cancelled by `is_cancelled_callback`,
@@ -1489,4 +1500,5 @@ class StableDiffusionLongPromptWeightingPipeline(
             is_cancelled_callback=is_cancelled_callback,
             callback_steps=callback_steps,
             cross_attention_kwargs=cross_attention_kwargs,
+            clip_skip=clip_skip,
         )
