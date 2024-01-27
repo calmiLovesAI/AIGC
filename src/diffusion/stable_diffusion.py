@@ -6,6 +6,7 @@ from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
 from src.diffusion.lora import add_multiple_loras
 from src.diffusion.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeline
+from src.diffusion.lpw_stable_diffusion_xl import StableDiffusionXLLongPromptWeightingPipeline
 from src.utils.file_ops import get_absolute_path
 
 
@@ -24,7 +25,8 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,
         pretrained_model = get_absolute_path(pretrained_model)
         pipeline = StableDiffusionLongPromptWeightingPipeline.from_single_file(pretrained_model,
                                                                                use_safetensors=True,
-                                                                               load_safety_checker=requires_safety_checker).to(device)
+                                                                               load_safety_checker=requires_safety_checker).to(
+            device)
     else:
         # from hugging face
         pipeline = StableDiffusionPipeline.from_pretrained(pretrained_model_name_or_path=pretrained_model,
@@ -89,14 +91,12 @@ def compel_prompt_weighting_for_sdxl(pipeline, prompts, negative_prompts):
     return prompt_embeddings, pooled, negative_prompt_embeddings, neg_pooled
 
 
-def build_stable_diffusion_xl_pipeline(pretrained_model, loras, prompts, negative_prompts, use_lora=False,
+def build_stable_diffusion_xl_pipeline(pretrained_model, loras, use_lora=False,
                                        requires_safety_checker=True, device='cuda'):
     """
     Build a Stable Diffusion XL pipeline
     :param pretrained_model: str or os.PathLike, A link to the .ckpt file on the hub or a path to a file containing all pipeline weights.
     :param loras: dict, lora model cfg
-    :param prompts: List of str
-    :param negative_prompts: List of str
     :param use_lora: bool, whether to load lora weights.
     :param requires_safety_checker: bool
     :param device:
@@ -104,9 +104,10 @@ def build_stable_diffusion_xl_pipeline(pretrained_model, loras, prompts, negativ
     """
     if os.path.isfile(pretrained_model):
         pretrained_model = get_absolute_path(pretrained_model)
-        pipeline = StableDiffusionXLPipeline.from_single_file(pretrained_model,
-                                                              use_safetensors=True,
-                                                              load_safety_checker=requires_safety_checker).to(device)
+        pipeline = StableDiffusionXLLongPromptWeightingPipeline.from_single_file(pretrained_model,
+                                                                                 use_safetensors=True,
+                                                                                 load_safety_checker=requires_safety_checker).to(
+            device)
     else:
         # from hugging face
         pipeline = StableDiffusionXLPipeline.from_pretrained(pretrained_model_name_or_path=pretrained_model,
@@ -125,15 +126,5 @@ def build_stable_diffusion_xl_pipeline(pretrained_model, loras, prompts, negativ
     # enable xformers
     pipeline.enable_xformers_memory_efficient_attention()
 
-    # prompt weighting
-    prompt_embeddings, pooled, negative_prompt_embeddings, neg_pooled = compel_prompt_weighting_for_sdxl(pipeline,
-                                                                                                         prompts,
-                                                                                                         negative_prompts)
+    return pipeline
 
-    return {
-        'pipeline': pipeline,
-        'prompt_embeddings': prompt_embeddings,
-        'pooled': pooled,
-        'negative_prompt_embeddings': negative_prompt_embeddings,
-        'neg_pooled': neg_pooled
-    }

@@ -81,16 +81,15 @@ class Text2ImagePipeline:
                                                             requires_safety_checker=requires_safety_checker,
                                                             device=device)
         elif self.model_type == 'Stable Diffusion XL':
-            components = build_stable_diffusion_xl_pipeline(model_name, loras, prompts=self.prompts,
-                                                            negative_prompts=self.negative_prompts,
-                                                            use_lora=use_lora,
-                                                            requires_safety_checker=requires_safety_checker,
-                                                            device=device)
-            self.pipeline = components['pipeline']
-            self.prompt_embeddings = components['prompt_embeddings']
-            self.negative_prompt_embeddings = components['negative_prompt_embeddings']
-            self.pooled_prompt_embeds = components['pooled']
-            self.negative_pooled_prompt_embeds = components['neg_pooled']
+            self.pipeline = build_stable_diffusion_xl_pipeline(model_name, loras,
+                                                               use_lora=use_lora,
+                                                               requires_safety_checker=requires_safety_checker,
+                                                               device=device)
+            # self.pipeline = components['pipeline']
+            # self.prompt_embeddings = components['prompt_embeddings']
+            # self.negative_prompt_embeddings = components['negative_prompt_embeddings']
+            # self.pooled_prompt_embeds = components['pooled']
+            # self.negative_pooled_prompt_embeds = components['neg_pooled']
 
         # set scheduler
         self._set_scheduler(scheduler_name)
@@ -107,11 +106,6 @@ class Text2ImagePipeline:
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
     def __call__(self, *args, **kwargs):
-        params = {}
-        if self.model_type == 'Stable Diffusion XL':
-            params.update({'pooled_prompt_embeds': self.pooled_prompt_embeds,
-                           'negative_pooled_prompt_embeds': self.negative_pooled_prompt_embeds})
-
         output_images = self.pipeline(prompt=self.prompts,
                                       negative_prompt=self.negative_prompts,
                                       generator=self.generator,
@@ -119,8 +113,7 @@ class Text2ImagePipeline:
                                       height=self.height,
                                       width=self.width,
                                       guidance_scale=self.guidance_scale,
-                                      clip_skip=self.clip_skip,
-                                      **params).images
+                                      clip_skip=self.clip_skip).images
         if self.scale_factor > 1:
             output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):

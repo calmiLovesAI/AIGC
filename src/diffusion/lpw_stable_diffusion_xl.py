@@ -544,7 +544,7 @@ def retrieve_timesteps(
     return timesteps, num_inference_steps
 
 
-class SDXLLongPromptWeightingPipeline(
+class StableDiffusionXLLongPromptWeightingPipeline(
     DiffusionPipeline, FromSingleFileMixin, IPAdapterMixin, LoraLoaderMixin, TextualInversionLoaderMixin
 ):
     r"""
@@ -1710,6 +1710,9 @@ class SDXLLongPromptWeightingPipeline(
             batch_size = 1
         elif prompt is not None and isinstance(prompt, list):
             batch_size = len(prompt)
+            prompt = prompt[0]
+            # When prompt is a list, negative_prompt is also likely to be a list.
+            negative_prompt = negative_prompt[0]
         else:
             batch_size = prompt_embeds.shape[0]
 
