@@ -85,11 +85,6 @@ class Text2ImagePipeline:
                                                                use_lora=use_lora,
                                                                requires_safety_checker=requires_safety_checker,
                                                                device=device)
-            # self.pipeline = components['pipeline']
-            # self.prompt_embeddings = components['prompt_embeddings']
-            # self.negative_prompt_embeddings = components['negative_prompt_embeddings']
-            # self.pooled_prompt_embeds = components['pooled']
-            # self.negative_pooled_prompt_embeds = components['neg_pooled']
 
         # set scheduler
         self._set_scheduler(scheduler_name)
