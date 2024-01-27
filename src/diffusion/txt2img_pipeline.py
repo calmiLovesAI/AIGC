@@ -121,8 +121,8 @@ class Text2ImagePipeline:
                                       guidance_scale=self.guidance_scale,
                                       clip_skip=self.clip_skip,
                                       **params).images
-
-        output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
+        if self.scale_factor > 1:
+            output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):
             save_ai_generated_image(image, seed=self.random_seeds[i], save_folder=self.output_path,
                                     prompt=self.prompts[0])
