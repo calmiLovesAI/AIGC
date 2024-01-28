@@ -7,8 +7,7 @@ import torch
 from src.utils.file_ops import get_absolute_path
 
 
-def read_prompt_from_file(file_path, lpw):
-    file_path = get_absolute_path(file_path)
+def read_txt(file_path):
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
@@ -22,7 +21,15 @@ def read_prompt_from_file(file_path, lpw):
     while end >= 0 and lines[end].strip() == '':
         end -= 1
 
-    prompt = ''.join(lines[start:end + 1])
+    contents = ''.join(lines[start:end + 1])
+
+    return contents
+
+
+def read_prompt_from_file(file_path, lpw):
+    file_path = get_absolute_path(file_path)
+
+    prompt = read_txt(file_path)
 
     prompt = read_prompt_from_str(prompt, lpw)
 
@@ -34,9 +41,62 @@ def read_prompt_from_str(prompt: str, lpw: bool) -> str:
     prompt = remove_a1111_prompt_lora_description(prompt)
     # convert a1111 format to compel
     if not lpw:
-        prompt_weight = parse_prompt_attention(prompt)
+        prompt_weight = a1111_parse_prompt_attention(prompt)
         prompt = convert_a1111_prompt_weighting_to_compel_v2(prompt_weight, True)
     return prompt
+
+
+def read_civitai_generate_data(civitai_generate_file_path):
+    generate_data_file_path = get_absolute_path(civitai_generate_file_path)
+    generate_data_str = read_txt(generate_data_file_path)
+
+    negative_prompt_idx = generate_data_str.find("Negative prompt")
+    steps_idx = generate_data_str.find("Steps")
+    eta_idx = generate_data_str.find("Eta")
+    size_idx = generate_data_str.find("Size")
+    seed_idx = generate_data_str.find("Seed")
+    model_idx = generate_data_str.find("Model")
+    sampler_idx = generate_data_str.find("Sampler")
+    cfg_scale_idx = generate_data_str.find("CFG scale")
+    clip_skip_idx = generate_data_str.find("Clip skip")
+    model_hash_idx = generate_data_str.find("Model hash")
+    hires_upscale_idx = generate_data_str.find("Hires upscale")
+    hires_upscaler_idx = generate_data_str.find("Hires upscaler")
+    denoising_strength_idx = generate_data_str.find("Denoising strength")
+
+    prompt = generate_data_str[:negative_prompt_idx].rstrip()
+    negative_prompt = generate_data_str[negative_prompt_idx + 17: steps_idx].rstrip()
+    num_inference_steps = int(generate_data_str[steps_idx + 7:eta_idx - 2])
+    size = generate_data_str[size_idx + 6:seed_idx - 2]
+    width, height = list(map(int, size.split('x')))
+    random_seed = int(generate_data_str[seed_idx + 6:model_idx - 2])
+    scheduler = generate_data_str[sampler_idx + 9:cfg_scale_idx - 2]
+    guidance_scale = int(generate_data_str[cfg_scale_idx + 11:clip_skip_idx - 2])
+    clip_skip = int(generate_data_str[clip_skip_idx + 11:model_hash_idx - 2])
+    scale_factor = int(generate_data_str[hires_upscale_idx + 15:hires_upscaler_idx - 2])
+    upscaler = generate_data_str[hires_upscaler_idx + 16:denoising_strength_idx - 2]
+
+    generate_data = {
+        "prompt": prompt,
+        "negative_prompt": negative_prompt,
+        "num_inference_steps": num_inference_steps,
+        "height": height,
+        "width": width,
+        "random_seed": random_seed,
+        "scheduler": scheduler,
+        "guidance_scale": guidance_scale,
+        "clip_skip": clip_skip,
+        "scale_factor": scale_factor,
+        "upscaler": upscaler,
+    }
+
+    print("-------------CIVITAI GENERATE DATA----------------")
+    for k, v in generate_data.items():
+        print(f"{k}: {v}")
+
+    print("-------------CIVITAI GENERATE DATA----------------")
+
+    return generate_data
 
 
 def remove_a1111_prompt_weight(prompt: str) -> str:
@@ -171,7 +231,7 @@ def get_filename_from_prompt(prompt, length=20):
     return truncated_string
 
 
-def parse_prompt_attention(text):
+def a1111_parse_prompt_attention(text):
     """
     Derived from https://github.com/AUTOMATIC1111/stable-diffusion-webui/blob/master/modules/prompt_parser.py
     Parses a string with attention tokens and returns a list of pairs: text and its associated weight.
@@ -313,7 +373,7 @@ class CLIPTextCustomEmbedder:
             return math.ceil(max(token_count, 1) / 75) * 75
 
         id_end = self.tokenizer.eos_token_id
-        parsed = parse_prompt_attention(line)
+        parsed = a1111_parse_prompt_attention(line)
         tokenized = self.tokenizer(
             [text for text, _ in parsed], truncation=False,
             add_special_tokens=False)["input_ids"]

@@ -53,13 +53,14 @@ def set_model(cfg):
     return cfg.model
 
 
-def get_prompt(cfg, lpw=True):
-    prompt = read_prompt_from_file(cfg.prompt_file, lpw)
-    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file, lpw)
+def get_prompt(cfg):
+    prompt = read_prompt_from_file(cfg.prompt_file, True)
+    negative_prompt = read_prompt_from_file(cfg.negative_prompt_file, True)
     print(f"\n==================PROMPT=================")
     print(prompt)
     print(f"\n=============NEGATIVE PROMPT=============")
     print(negative_prompt)
+    print(f"\n=========================================")
     return prompt, negative_prompt
 
 
@@ -69,7 +70,14 @@ def main():
 
     model_type = set_model_type(cfg)
     model = set_model(cfg)
-    prompt, negative_prompt = get_prompt(cfg)
+
+    print(f"You have selected the {model_type} model: {model}")
+
+    if cfg.from_civitai:
+        prompt = cfg.prompt
+        negative_prompt = cfg.negative_prompt
+    else:
+        prompt, negative_prompt = get_prompt(cfg)
 
     loras = preprocess_lora_cfg(cfg.lora.model, cfg.lora.weights, cfg.lora.scales, from_civitai=cfg.lora.civitai)
     pipeline = Text2ImagePipeline(prompt=prompt,
