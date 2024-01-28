@@ -98,7 +98,6 @@ def main():
                                   guidance_scale=cfg.guidance_scale,
                                   clip_skip=cfg.clip_skip,
                                   use_lora=cfg.lora.enable,
-                                  use_lpw=cfg.get('lpw', True),
                                   requires_safety_checker=cfg.get('nsfw', True),
                                   device=device)
     pipeline.__call__()

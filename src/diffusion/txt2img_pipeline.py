@@ -28,7 +28,6 @@ class Text2ImagePipeline:
                  clip_skip=2,
                  use_fp16=False,
                  use_lora=True,
-                 use_lpw=True,
                  requires_safety_checker=True,
                  device=torch.device('cuda')):
         """
@@ -55,7 +54,6 @@ class Text2ImagePipeline:
                           A value of 1 means that the output of the pre-final layer will be used for computing the prompt embeddings.
         :param use_fp16:
         :param use_lora:
-        :param use_lpw:
         :param requires_safety_checker: bool, default True.
         :param device:
         """
@@ -72,7 +70,6 @@ class Text2ImagePipeline:
         self.upscaler = upscaler
         self.scale_factor = scale_factor
         self.output_path = output_path
-        self.use_lpw = use_lpw
 
         # initialize the pipeline
         if self.model_type == 'Stable Diffusion 1.5':
