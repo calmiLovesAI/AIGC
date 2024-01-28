@@ -71,7 +71,9 @@ def main():
     model_type = set_model_type(cfg)
     model = set_model(cfg)
 
+    print("="*50)
     print(f"You have selected the {model_type} model: {model}")
+    print("="*50)
 
     if cfg.from_civitai:
         prompt = cfg.prompt
