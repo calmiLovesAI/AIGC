@@ -102,7 +102,7 @@ def read_civitai_generate_data(civitai_generate_file_path):
     scheduler = get_item_value("Sampler", generate_data_str)
     guidance_scale = float(get_item_value("CFG scale", generate_data_str))
     clip_skip = int(get_item_value("Clip skip", generate_data_str))
-    scale_factor = int(get_item_value("Hires upscale", generate_data_str))
+    scale_factor = float(get_item_value("Hires upscale", generate_data_str))
     upscaler = get_item_value("Hires upscaler", generate_data_str)
 
     generate_data = {

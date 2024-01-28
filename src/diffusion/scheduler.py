@@ -4,6 +4,7 @@ from diffusers import EulerDiscreteScheduler, PNDMScheduler, DPMSolverMultistepS
 __all__ = [
     'diffusion_schedulers',
     'get_scheduler_names',
+    'get_scheduler',
 ]
 
 diffusion_schedulers = {
@@ -21,3 +22,12 @@ diffusion_schedulers = {
 
 def get_scheduler_names():
     return list(diffusion_schedulers.keys())
+
+
+def get_scheduler(scheduler_name):
+    if scheduler_name not in diffusion_schedulers:
+        print(f"The scheduler {scheduler_name} is not in diffusion_schedulers, DPM++ 2M SDE Karras will be used for the default.")
+        scheduler_name = 'DPM++ 2M SDE Karras'
+    scheduler = diffusion_schedulers[scheduler_name]
+    return scheduler
+

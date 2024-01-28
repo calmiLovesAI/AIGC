@@ -2,7 +2,7 @@ import torch
 import random
 
 from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
-from src.diffusion.scheduler import diffusion_schedulers
+from src.diffusion.scheduler import get_scheduler
 from src.diffusion.upscaler import upscale_image
 from src.utils.image import save_ai_generated_image
 
@@ -90,11 +90,7 @@ class Text2ImagePipeline:
         self.generator, self.random_seeds = get_torch_generator(self.batch_size, input_random_seed=random_seed)
 
     def _set_scheduler(self, scheduler_name):
-        try:
-            self.scheduler = diffusion_schedulers[scheduler_name]
-        except Exception:
-            raise ValueError(f"The scheduler {scheduler_name} is not in diffusion_schedulers, "
-                             f"only {diffusion_schedulers.keys()} are supported.")
+        self.scheduler = get_scheduler(scheduler_name)
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
     def __call__(self, *args, **kwargs):

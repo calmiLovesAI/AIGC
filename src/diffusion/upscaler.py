@@ -1,7 +1,9 @@
+import math
+
 import torch
 
 from src.utils.file_ops import get_absolute_path
-from src.vision.real_esrgan.real_esrgan import RealESRGAN
+from src.diffusion.real_esrgan import RealESRGAN
 
 REAL_ESRGAN_PATH = {
     '2x': './downloads/upscaler/RealESRGAN_x2.pth',
@@ -15,6 +17,7 @@ ALL_UPSCALERS = [
 
 
 def upscale_image(images, model, scale_factor=2, device=torch.device('cuda')):
+    scale_factor = math.ceil(scale_factor)
     assert scale_factor in [2, 4, 8], "scale_factor must be either 2, 4, or 8"
     sr_images = []
     if model not in ALL_UPSCALERS:
