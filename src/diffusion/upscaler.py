@@ -17,7 +17,8 @@ ALL_UPSCALERS = [
 
 
 def upscale_image(images, model, scale_factor=2, device=torch.device('cuda')):
-    scale_factor = math.ceil(scale_factor)
+    if isinstance(scale_factor, float):
+        scale_factor = 2
     assert scale_factor in [2, 4, 8], "scale_factor must be either 2, 4, or 8"
     sr_images = []
     if model not in ALL_UPSCALERS:

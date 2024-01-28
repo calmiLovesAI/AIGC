@@ -59,7 +59,7 @@ def get_item_value(key: str, text: str):
         if text[i] == ',':
             end_idx = i
             break
-    value = text[start_idx+len(key)+2:end_idx]
+    value = text[start_idx + len(key) + 2:end_idx]
     return value
 
 
@@ -102,7 +102,11 @@ def read_civitai_generate_data(civitai_generate_file_path):
     scheduler = get_item_value("Sampler", generate_data_str)
     guidance_scale = float(get_item_value("CFG scale", generate_data_str))
     clip_skip = int(get_item_value("Clip skip", generate_data_str))
-    scale_factor = float(get_item_value("Hires upscale", generate_data_str))
+    try:
+        scale_factor = float(get_item_value("Hires upscale", generate_data_str))
+    except Exception as e:
+        print(e)
+        scale_factor = 2.0
     upscaler = get_item_value("Hires upscaler", generate_data_str)
 
     generate_data = {
