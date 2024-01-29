@@ -52,77 +52,83 @@ def parse_lora_description(text: str):
     return lora_name, lora_scale
 
 
-def get_item_value(key: str, text: str):
-    start_idx = text.find(key)
-    end_idx = start_idx
-    for i in range(start_idx, len(text)):
-        if text[i] == ',':
-            end_idx = i
-            break
-    value = text[start_idx + len(key) + 2:end_idx]
-    return value
+class CivitaiParser:
+    def __init__(self, civitai_generate_file_path):
+        self.civitai_generate_file_path = civitai_generate_file_path
+        self.generate_data_str = read_txt(get_absolute_path(self.civitai_generate_file_path))
+
+        self.prompt_end_idx = self._get_prompt_end_idx()
+        self.negative_prompt_end_idx = self._get_negative_prompt_end_idx()
+
+        self.prompt = self.generate_data_str[:self.prompt_end_idx].strip()
+        self.lora = self._parse_lora()
+        self.negative_prompt = self.generate_data_str[self.prompt_end_idx + 17: self.negative_prompt_end_idx].strip()
+
+        # Create a dictionary
+        key_value_pairs = [pair.strip() for pair in self.generate_data_str[self.negative_prompt_end_idx:].split(',')]
+        self.result_dict = {}
+        for pair in key_value_pairs:
+            key, value = pair.split(':', 1)  # Split key and value by colon, at most once
+            self.result_dict[key.strip()] = value.strip()
+
+    def get_generate_data(self):
+        num_inference_steps = int(self.result_dict["Steps"])
+        size = self.result_dict["Size"]
+        width, height = list(map(int, size.split('x')))
+        random_seed = int(self.result_dict["Seed"])
+        scheduler = self.result_dict["Sampler"]
+        guidance_scale = float(self.result_dict["CFG scale"])
+        clip_skip = int(self.result_dict["Clip skip"])
+        scale_factor = float(self.result_dict.get("Hires upscale", 2))
+        upscaler = self.result_dict["Hires upscaler"]
+
+        return {
+            "prompt": self.prompt,
+            "negative_prompt": self.negative_prompt,
+            "num_inference_steps": num_inference_steps,
+            "height": height,
+            "width": width,
+            "random_seed": random_seed,
+            "scheduler": scheduler,
+            "guidance_scale": guidance_scale,
+            "clip_skip": clip_skip,
+            "scale_factor": scale_factor,
+            "upscaler": upscaler,
+            "lora": self.lora,
+        }
+
+    def _parse_lora(self):
+        lora = {}
+        matches = re.finditer(pattern=r'<(.*?)>', string=self.prompt)
+        for match in matches:
+            content = match.group(1)
+            lora_name, lora_scale = parse_lora_description(content)
+            # lora exists
+            lora['enable'] = True
+            lora['civitai'] = True
+            lora['model'] = ["./downloads/lora/"]
+            if 'weights' not in lora:
+                lora['weights'] = [f"{lora_name}.safetensors"]
+            else:
+                lora['weights'].append(f"{lora_name}.safetensors")
+            if 'scales' not in lora:
+                lora['scales'] = [lora_scale]
+            else:
+                lora['scales'].append(lora_scale)
+            lora['location'] = 'unet'
+
+        self.prompt = remove_a1111_prompt_lora_description(self.prompt)
+        return lora
+
+    def _get_prompt_end_idx(self):
+        return self.generate_data_str.find("Negative prompt")
+
+    def _get_negative_prompt_end_idx(self):
+        return self.generate_data_str.find("Steps")
 
 
 def read_civitai_generate_data(civitai_generate_file_path):
-    generate_data_file_path = get_absolute_path(civitai_generate_file_path)
-    generate_data_str = read_txt(generate_data_file_path)
-
-    negative_prompt_idx = generate_data_str.find("Negative prompt")
-    steps_idx = generate_data_str.find("Steps")
-
-    prompt = generate_data_str[:negative_prompt_idx].rstrip()
-
-    # parse lora from prompt
-    lora = {}
-    matches = re.finditer(pattern=r'<(.*?)>', string=prompt)
-    for match in matches:
-        content = match.group(1)
-        lora_name, lora_scale = parse_lora_description(content)
-        # lora exists
-        lora['enable'] = True
-        lora['civitai'] = True
-        lora['model'] = ["./downloads/lora/"]
-        if 'weights' not in lora:
-            lora['weights'] = [f"{lora_name}.safetensors"]
-        else:
-            lora['weights'].append(f"{lora_name}.safetensors")
-        if 'scales' not in lora:
-            lora['scales'] = [lora_scale]
-        else:
-            lora['scales'].append(lora_scale)
-        lora['location'] = 'unet'
-
-    prompt = remove_a1111_prompt_lora_description(prompt)
-
-    negative_prompt = generate_data_str[negative_prompt_idx + 17: steps_idx].rstrip()
-    num_inference_steps = int(get_item_value("Steps", generate_data_str))
-    size = get_item_value("Size", generate_data_str)
-    width, height = list(map(int, size.split('x')))
-    random_seed = int(get_item_value("Seed", generate_data_str))
-    scheduler = get_item_value("Sampler", generate_data_str)
-    guidance_scale = float(get_item_value("CFG scale", generate_data_str))
-    clip_skip = int(get_item_value("Clip skip", generate_data_str))
-    try:
-        scale_factor = float(get_item_value("Hires upscale", generate_data_str))
-    except Exception as e:
-        print(e)
-        scale_factor = 2.0
-    upscaler = get_item_value("Hires upscaler", generate_data_str)
-
-    generate_data = {
-        "prompt": prompt,
-        "negative_prompt": negative_prompt,
-        "num_inference_steps": num_inference_steps,
-        "height": height,
-        "width": width,
-        "random_seed": random_seed,
-        "scheduler": scheduler,
-        "guidance_scale": guidance_scale,
-        "clip_skip": clip_skip,
-        "scale_factor": scale_factor,
-        "upscaler": upscaler,
-        "lora": lora,
-    }
+    generate_data = CivitaiParser(civitai_generate_file_path).get_generate_data()
 
     print("-------------CIVITAI GENERATE DATA----------------")
     for k, v in generate_data.items():
