@@ -45,7 +45,7 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,
     # enable xformers
     pipeline.enable_xformers_memory_efficient_attention()
     # enable model offloading to speed up inference and reduce memory usage
-    pipeline.enable_model_cpu_offload()
+    pipeline.enable_sequential_cpu_offload()
 
     return pipeline
 
@@ -128,7 +128,7 @@ def build_stable_diffusion_xl_pipeline(pretrained_model, loras, use_lora=False,
     # enable xformers
     pipeline.enable_xformers_memory_efficient_attention()
     # enable model offloading to speed up inference and reduce memory usage
-    pipeline.enable_model_cpu_offload()
+    pipeline.enable_sequential_cpu_offload()
 
     return pipeline
 
