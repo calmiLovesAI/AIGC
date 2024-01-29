@@ -12,15 +12,20 @@ def create_civitai_conf(civitai_data_path):
     return conf
 
 
-def load_task_cfg(*cfgs):
-    task_cfgs = [OmegaConf.create(c) for c in cfgs]
-    base_cfg = OmegaConf.merge(*task_cfgs)
-
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--cfg', type=str, required=True, help='config file path', default='')
     parser.add_argument('-bs', type=int, help='batch size', default=1)
     parser.add_argument('-nsfw', action='store_false')
     args = parser.parse_args()
+    return args
+
+
+def load_task_cfg(*cfgs):
+    task_cfgs = [OmegaConf.create(c) for c in cfgs]
+    base_cfg = OmegaConf.merge(*task_cfgs)
+
+    args = parse_args()
 
     if args.cfg == "civitai":
         if 'prompt_file' in base_cfg:
