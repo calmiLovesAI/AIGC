@@ -1,0 +1,4 @@
+
+HUGGINGFACE_METRICS = {
+    "accuracy",
+}

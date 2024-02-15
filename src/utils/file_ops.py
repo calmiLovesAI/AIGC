@@ -80,3 +80,11 @@ def load_state_dict_from_url(url: str, model_dir: str, map_location: torch.devic
     download_file(url, model_dir)
     state_dict = torch.load(model_dir, map_location=map_location)
     return state_dict
+
+
+def create_checkpoint_save_dir(model_name: str, dataset_name: str, root: str = 'outputs'):
+    model_name = model_name.split('/')[-1].lower()
+    dataset_name = dataset_name.lower()
+    save_dir = os.path.join(root, f"{model_name}_{dataset_name}")
+    save_dir = create_directory_if_not_exists(directory_path=save_dir)
+    return save_dir

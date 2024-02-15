@@ -6,6 +6,17 @@ from src.utils.file_ops import get_absolute_path
 from omegaconf import OmegaConf
 
 
+def scientific_notation(value):
+    try:
+        return float(value)
+    except ValueError:
+        # If the value cannot be parsed as a float, try parsing it as scientific notation
+        try:
+            return float(value)
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"Invalid scientific notation value: {value}")
+
+
 def create_civitai_conf(civitai_data_path):
     conf = read_civitai_generate_data(civitai_data_path)
     conf = OmegaConf.create(conf)
