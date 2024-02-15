@@ -112,7 +112,7 @@ def do_image_classification(checkpoint_path, image_path, device='cuda'):
     image_processor = AutoImageProcessor.from_pretrained(checkpoint_path)
     inputs = image_processor(image, return_tensors="pt")
 
-    model = AutoModelForImageClassification.from_pretrained(checkpoint_path).to(device)
+    model = AutoModelForImageClassification.from_pretrained(checkpoint_path)
     with torch.no_grad():
         logits = model(**inputs).logits
 

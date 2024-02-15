@@ -5,7 +5,6 @@ from src.utils.config_parser import scientific_notation
 from src.utils.file_ops import create_checkpoint_save_dir
 
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', type=str, help='mode: train or infer', default='train')
@@ -38,7 +37,7 @@ if __name__ == '__main__':
     elif args.m == 'infer':
         do_image_classification(
             checkpoint_path=args.ckpt,
-            image_path=args.test_image,
+            image_path=args.test_img,
         )
     else:
         raise ValueError
