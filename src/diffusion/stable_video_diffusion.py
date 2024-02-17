@@ -53,8 +53,6 @@ def generate_video_with_svd_xt(condition_image_path_or_url: str,
     image = load_image(condition_image_path_or_url)
     image = image.resize(size=(height, width))
 
-
-
     frames = pipe(image=image,
                   height=height,
                   width=width,
@@ -69,3 +67,4 @@ def generate_video_with_svd_xt(condition_image_path_or_url: str,
                   fps=fps).frames[0]
 
     export_to_video(frames, output_video_path=output_video_path, fps=fps)
+    print(f"Saved to {output_video_path}.")
