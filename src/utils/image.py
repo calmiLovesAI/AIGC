@@ -84,7 +84,7 @@ def save_ai_generated_image(image, seed, save_folder, prompt='none'):
     save_dir = create_directory_if_not_exists(cur_date_folder_path)
 
     filename_prefix = get_filename_from_prompt(prompt, length=50)
-    filename = generate_random_filename(file_type=filename_prefix, suffix=f"_seed={seed}.png")
+    filename = generate_random_filename(file_prefix=filename_prefix, suffix=f"_seed={seed}.png")
 
     save_dir = os.path.join(save_dir, filename)
     image.save(fp=save_dir)
