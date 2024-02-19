@@ -23,10 +23,13 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,
     """
     if os.path.isfile(pretrained_model):
         pretrained_model = get_absolute_path(pretrained_model)
-        pipeline = StableDiffusionLongPromptWeightingPipeline.from_single_file(pretrained_model,
-                                                                               use_safetensors=True,
-                                                                               load_safety_checker=requires_safety_checker).to(
-            device)
+        pipeline = StableDiffusionPipeline.from_single_file(pretrained_model,
+                                                            use_safetensors=True,
+                                                            load_safety_checker=requires_safety_checker).to(device)
+        # pipeline = StableDiffusionLongPromptWeightingPipeline.from_single_file(pretrained_model,
+        #                                                                        use_safetensors=True,
+        #                                                                        load_safety_checker=requires_safety_checker).to(
+        #     device)
     else:
         # from hugging face
         pipeline = StableDiffusionPipeline.from_pretrained(pretrained_model_name_or_path=pretrained_model,
@@ -44,8 +47,6 @@ def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,
     pipeline.enable_attention_slicing()
     # enable xformers
     pipeline.enable_xformers_memory_efficient_attention()
-    # enable model offloading to speed up inference and reduce memory usage
-    pipeline.enable_model_cpu_offload()
 
     return pipeline
 
@@ -131,4 +132,3 @@ def build_stable_diffusion_xl_pipeline(pretrained_model, loras, use_lora=False,
     pipeline.enable_model_cpu_offload()
 
     return pipeline
-

@@ -1,6 +1,7 @@
 import torch
 import random
 
+from src.diffusion.long_prompt_weighting import LongPromptWeightingAdapter
 from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
 from src.diffusion.scheduler import get_scheduler
 from src.diffusion.upscaler import upscale_image
@@ -82,7 +83,7 @@ class Text2ImagePipeline:
                                                                use_lora=use_lora,
                                                                requires_safety_checker=requires_safety_checker,
                                                                device=device)
-
+        self.lpw_adapter = LongPromptWeightingAdapter(self.pipeline)
         # set scheduler
         self._set_scheduler(scheduler_name)
 
@@ -94,14 +95,25 @@ class Text2ImagePipeline:
         self.pipeline.scheduler = self.scheduler.from_config(self.pipeline.scheduler.config)
 
     def __call__(self, *args, **kwargs):
-        output_images = self.pipeline(prompt=self.prompts,
-                                      negative_prompt=self.negative_prompts,
-                                      generator=self.generator,
-                                      num_inference_steps=self.num_inference_steps,
-                                      height=self.height,
-                                      width=self.width,
-                                      guidance_scale=self.guidance_scale,
-                                      clip_skip=self.clip_skip).images
+        if self.model_type == 'Stable Diffusion 1.5':
+            prompt_embeds, negative_prompt_embeds = self.lpw_adapter(self.prompts, self.negative_prompts, clip_skip=self.clip_skip)
+            output_images = self.pipeline(prompt_embeds=prompt_embeds,
+                                          negative_prompt_embeds=negative_prompt_embeds,
+                                          generator=self.generator,
+                                          num_inference_steps=self.num_inference_steps,
+                                          height=self.height,
+                                          width=self.width,
+                                          guidance_scale=self.guidance_scale,
+                                          clip_skip=self.clip_skip).images
+        else:
+            output_images = self.pipeline(prompt=self.prompts,
+                                          negative_prompt=self.negative_prompts,
+                                          generator=self.generator,
+                                          num_inference_steps=self.num_inference_steps,
+                                          height=self.height,
+                                          width=self.width,
+                                          guidance_scale=self.guidance_scale,
+                                          clip_skip=self.clip_skip).images
         if self.scale_factor > 1:
             output_images = upscale_image(images=output_images, model=self.upscaler, scale_factor=self.scale_factor)
         for i, image in enumerate(output_images):

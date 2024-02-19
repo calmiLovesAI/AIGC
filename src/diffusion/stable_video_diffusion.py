@@ -32,7 +32,7 @@ def generate_video_with_svd_xt(condition_image_path_or_url: str,
         root_folder = get_absolute_path(relative_path='outputs')
         # Name of sub folder is the current date.
         sub_folder = date.today().isoformat()
-        file_prefix = os.path.splitext(os.path.basename(condition_image_path_or_url))[0][:15]
+        file_prefix = os.path.splitext(os.path.basename(condition_image_path_or_url))[0][:30]
         file_name = generate_random_filename(file_prefix=file_prefix, suffix=f"_seed={seed}.mp4")
         output_video_path = os.path.join(root_folder, sub_folder, file_name)
         create_directory_if_not_exists(directory_path=output_video_path, is_file=True)
