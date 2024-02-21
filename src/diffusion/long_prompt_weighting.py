@@ -148,33 +148,28 @@ class LongPromptWeightingAdapter:
             batch_size = len(prompt)
 
         if isinstance(self.pipe, StableDiffusionPipeline):
-            return self._sd_lpw(prompt, neg_prompt, clip_skip, batch_size)
+            text_embedder = CLIPTextCustomEmbedder(pipe=self.pipe, clip_skip=clip_skip)
+            cond_embeds = text_embedder(prompt, batch_size)
+            if neg_prompt:
+                uncond_embeds = text_embedder(neg_prompt, batch_size)
+                cond_len = cond_embeds.shape[1]
+                uncond_len = uncond_embeds.shape[1]
+                if cond_len > uncond_len:
+                    n = (cond_len - uncond_len) // self.pipe.tokenizer.model_max_length
+                    uncond_embeds = torch.cat([uncond_embeds] + [text_embedder("", batch_size)] * n, dim=1)
+                elif cond_len < uncond_len:
+                    n = (uncond_len - cond_len) // self.pipe.tokenizer.model_max_length
+                    cond_embeds = torch.cat([cond_embeds] + [text_embedder("", batch_size)] * n, dim=1)
+                else:
+                    pass
+                return cond_embeds, uncond_embeds
+            else:
+                return cond_embeds, None
         elif isinstance(self.pipe, StableDiffusionXLPipeline):
             pass
         else:
             raise ValueError
 
-    def _sd_lpw(self, prompt, neg_prompt, clip_skip: int = None, batch_size: int = 1):
-        text_embedder = CLIPTextCustomEmbedder(pipe=self.pipe, clip_skip=clip_skip)
-        cond_embeds = text_embedder(prompt, batch_size)
-        if neg_prompt:
-            uncond_embeds = text_embedder(neg_prompt, batch_size)
-            cond_len = cond_embeds.shape[1]
-            uncond_len = uncond_embeds.shape[1]
-            if cond_len > uncond_len:
-                n = (cond_len - uncond_len) // self.pipe.tokenizer.model_max_length
-                uncond_embeds = torch.cat([uncond_embeds] + [text_embedder("", batch_size)] * n, dim=1)
-            elif cond_len < uncond_len:
-                n = (uncond_len - cond_len) // self.pipe.tokenizer.model_max_length
-                cond_embeds = torch.cat([cond_embeds] + [text_embedder("", batch_size)] * n, dim=1)
-            else:
-                pass
-            return cond_embeds, uncond_embeds
-        else:
-            return cond_embeds, None
-
-    def _sdxl_lpw(self):
-        pass
 
 
 class CLIPTextCustomEmbedder:
