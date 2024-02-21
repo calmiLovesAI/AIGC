@@ -103,8 +103,7 @@ class Text2ImagePipeline:
                                           num_inference_steps=self.num_inference_steps,
                                           height=self.height,
                                           width=self.width,
-                                          guidance_scale=self.guidance_scale,
-                                          clip_skip=self.clip_skip).images
+                                          guidance_scale=self.guidance_scale).images
         else:
             output_images = self.pipeline(prompt=self.prompts,
                                           negative_prompt=self.negative_prompts,
