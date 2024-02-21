@@ -97,6 +97,7 @@ class Text2ImagePipeline:
     def __call__(self, *args, **kwargs):
         if self.model_type == 'Stable Diffusion 1.5':
             prompt_embeds, negative_prompt_embeds = self.lpw_adapter(self.prompts, self.negative_prompts, clip_skip=self.clip_skip)
+            print(f"prompt_embedding: {prompt_embeds.shape}, neg_embedding: {negative_prompt_embeds}")
             output_images = self.pipeline(prompt_embeds=prompt_embeds,
                                           negative_prompt_embeds=negative_prompt_embeds,
                                           generator=self.generator,

@@ -171,7 +171,6 @@ class LongPromptWeightingAdapter:
             raise ValueError
 
 
-
 class CLIPTextCustomEmbedder:
     """
     The code is derived from https://gist.github.com/takuma104/43552b8ec70b63323c57dc9c6fcb9b90
@@ -181,16 +180,35 @@ class CLIPTextCustomEmbedder:
                  pipe: DiffusionPipeline,
                  clip_skip: int = 2):
         self.tokenizer = pipe.tokenizer
+        vocab = self.tokenizer.get_vocab()
         self.chunk_length = pipe.tokenizer.model_max_length - 2
         self.text_encoder = pipe.text_encoder
+
         self.token_mults = {}
+        tokens_with_parens = [(k, v) for k, v in vocab.items() if '(' in k or ')' in k or '[' in k or ']' in k]
+        for text, ident in tokens_with_parens:
+            mult = 1.0
+            for c in text:
+                if c == '[':
+                    mult /= 1.1
+                if c == ']':
+                    mult *= 1.1
+                if c == '(':
+                    mult *= 1.1
+                if c == ')':
+                    mult /= 1.1
+
+            if mult != 1.0:
+                self.token_mults[ident] = mult
+
         self.device = pipe.text_encoder.device
         self.clip_stop_at_last_layers = clip_skip
 
-    def tokenize_line(self, line):
-        def get_target_prompt_token_count(token_count):
-            return math.ceil(max(token_count, 1) / self.chunk_length) * self.chunk_length
+    def get_target_prompt_token_count(self, token_count):
+        """returns the maximum number of tokens a prompt of a known length can have before it requires one more PromptChunk to be represented"""
+        return math.ceil(max(token_count, 1) / self.chunk_length) * self.chunk_length
 
+    def tokenize_line(self, line):
         id_end = self.tokenizer.eos_token_id
         parsed = parse_prompt_attention(line)
         tokenized = self.tokenizer(
@@ -210,7 +228,7 @@ class CLIPTextCustomEmbedder:
                 i += 1
 
         token_count = len(remade_tokens)
-        prompt_target_length = get_target_prompt_token_count(token_count)
+        prompt_target_length = self.get_target_prompt_token_count(token_count)
         tokens_to_add = prompt_target_length - len(remade_tokens)
         remade_tokens = remade_tokens + [id_end] * tokens_to_add
         multipliers = multipliers + [1.0] * tokens_to_add
@@ -273,8 +291,8 @@ class CLIPTextCustomEmbedder:
             input_ids=tokens, output_hidden_states=True)
 
         if self.clip_stop_at_last_layers > 1:
-            z = self.text_encoder.text_model.final_layer_norm(
-                outputs.hidden_states[-self.clip_stop_at_last_layers])
+            z = outputs.hidden_states[-self.clip_stop_at_last_layers]
+            z = self.text_encoder.text_model.final_layer_norm(z)
         else:
             z = outputs.last_hidden_state
 
@@ -293,7 +311,7 @@ class CLIPTextCustomEmbedder:
 
         return z
 
-    def get_text_tokens(self, text):
-        batch_multipliers, remade_batch_tokens = self.process_text(text)
-        return [[self.tokenizer.bos_token_id] + remade_batch_tokens[0]], \
-            [[1.0] + batch_multipliers[0]]
+    # def get_text_tokens(self, text):
+    #     batch_multipliers, remade_batch_tokens = self.process_text(text)
+    #     return [[self.tokenizer.bos_token_id] + remade_batch_tokens[0]], \
+    #         [[1.0] + batch_multipliers[0]]
