@@ -1,6 +1,6 @@
 import argparse
 
-from src.diffusion.stable_video_diffusion import generate_video_with_svd_xt
+from src_old.diffusion.stable_video_diffusion import generate_video_with_svd_xt
 
 
 def parse_args():

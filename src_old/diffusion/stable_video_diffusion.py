@@ -6,7 +6,7 @@ import torch
 from diffusers import StableVideoDiffusionPipeline
 from diffusers.utils import load_image, export_to_video
 
-from src.utils.file_ops import get_absolute_path, generate_random_filename, create_directory_if_not_exists
+from src_old.utils.file_ops import get_absolute_path, generate_random_filename, create_directory_if_not_exists
 
 
 def generate_video_with_svd_xt(condition_image_path_or_url: str,

@@ -4,10 +4,10 @@ from compel import Compel, ReturnedEmbeddingsType
 
 from diffusers import StableDiffusionPipeline, StableDiffusionXLPipeline
 
-from src.diffusion.lora import add_multiple_loras
-from src.diffusion.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeline
-from src.diffusion.lpw_stable_diffusion_xl import StableDiffusionXLLongPromptWeightingPipeline
-from src.utils.file_ops import get_absolute_path
+from src_old.diffusion.lora import add_multiple_loras
+from src_old.diffusion.lpw_stable_diffusion import StableDiffusionLongPromptWeightingPipeline
+from src_old.diffusion.lpw_stable_diffusion_xl import StableDiffusionXLLongPromptWeightingPipeline
+from src_old.utils.file_ops import get_absolute_path
 
 
 def build_stable_diffusion_pipeline(pretrained_model, loras, use_lora=False,

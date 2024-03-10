@@ -1,8 +1,8 @@
 import argparse
 
-from src.computer_vision.image_classification import train_image_classification_model, do_image_classification
-from src.utils.config_parser import scientific_notation
-from src.utils.file_ops import create_checkpoint_save_dir
+from src_old.computer_vision.image_classification import train_image_classification_model, do_image_classification
+from src_old.utils.config_parser import scientific_notation
+from src_old.utils.file_ops import create_checkpoint_save_dir
 
 
 def parse_args():

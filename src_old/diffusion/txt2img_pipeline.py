@@ -1,11 +1,11 @@
 import torch
 import random
 
-from src.diffusion.long_prompt_weighting import LongPromptWeightingAdapter
-from src.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
-from src.diffusion.scheduler import get_scheduler
-from src.diffusion.upscaler import upscale_image
-from src.utils.image import save_ai_generated_image
+from src_old.diffusion.long_prompt_weighting import LongPromptWeightingAdapter
+from src_old.diffusion.stable_diffusion import build_stable_diffusion_pipeline, build_stable_diffusion_xl_pipeline
+from src_old.diffusion.scheduler import get_scheduler
+from src_old.diffusion.upscaler import upscale_image
+from src_old.utils.image import save_ai_generated_image
 
 
 class Text2ImagePipeline:

@@ -1,8 +1,8 @@
 import argparse
 import os.path
 
-from src.diffusion.prompt import read_civitai_generate_data
-from src.utils.file_ops import get_absolute_path
+from src_old.diffusion.prompt import read_civitai_generate_data
+from src_old.utils.file_ops import get_absolute_path
 from omegaconf import OmegaConf
 
 

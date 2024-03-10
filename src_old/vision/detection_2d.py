@@ -3,10 +3,10 @@ import glob
 from transformers import pipeline
 import os
 
-from src.utils.file_ops import create_directory_if_not_exists, get_absolute_path
-from src.utils.file_type import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
-from src.utils.image import save_image
-from src.utils.vis import display_detection_results_on_image
+from src_old.utils.file_ops import create_directory_if_not_exists, get_absolute_path
+from src_old.utils.file_type import IMAGE_EXTENSIONS, VIDEO_EXTENSIONS
+from src_old.utils.image import save_image
+from src_old.utils.vis import display_detection_results_on_image
 
 
 class Detection2D:

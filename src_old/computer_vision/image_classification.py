@@ -5,14 +5,14 @@ import evaluate
 from functools import partial
 from PIL import Image
 from torchvision.transforms import RandomResizedCrop, Compose, Normalize, ToTensor
-from src.train.metrics import HUGGINGFACE_METRICS
-from src.utils.file_ops import get_absolute_path
+from src_old.train.metrics import HUGGINGFACE_METRICS
+from src_old.utils.file_ops import get_absolute_path
 from typing import List
 from datasets import load_dataset
 from transformers import AutoImageProcessor, DefaultDataCollator, AutoModelForImageClassification, TrainingArguments, \
     Trainer
-from src.data import HUGGINGFACE_DATASETS, CUSTOM_DATASETS
-from src.models import HUGGINGFACE_MODELS
+from src_old.data import HUGGINGFACE_DATASETS, CUSTOM_DATASETS
+from src_old.models import HUGGINGFACE_MODELS
 
 
 def compute_metrics_for_image_classification(eval_pred, metric_name):

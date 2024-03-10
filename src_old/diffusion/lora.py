@@ -1,6 +1,6 @@
 import os.path
 
-from src.utils.file_ops import get_absolute_path
+from src_old.utils.file_ops import get_absolute_path
 
 
 def preprocess_lora_cfg(lora_model, lora_weights, lora_scales, from_civitai=False):

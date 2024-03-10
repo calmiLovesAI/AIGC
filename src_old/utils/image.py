@@ -6,8 +6,8 @@ import os
 import numpy as np
 from PIL import Image
 
-from src.utils.file_ops import generate_random_filename, create_directory_if_not_exists
-from src.diffusion.prompt import get_filename_from_prompt
+from src_old.utils.file_ops import generate_random_filename, create_directory_if_not_exists
+from src_old.diffusion.prompt import get_filename_from_prompt
 
 
 def read_image(image_path, mode='rgb'):

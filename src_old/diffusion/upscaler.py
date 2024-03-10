@@ -2,8 +2,8 @@ import math
 
 import torch
 
-from src.utils.file_ops import get_absolute_path
-from src.diffusion.real_esrgan import RealESRGAN
+from src_old.utils.file_ops import get_absolute_path
+from src_old.diffusion.real_esrgan import RealESRGAN
 
 REAL_ESRGAN_PATH = {
     '2x': './downloads/upscaler/RealESRGAN_x2.pth',

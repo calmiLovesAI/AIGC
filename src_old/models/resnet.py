@@ -6,8 +6,8 @@ from torch import Tensor
 from torchvision.models import ResNet50_Weights, ResNet101_Weights, ResNet18_Weights, ResNet34_Weights, \
     ResNet152_Weights
 
-from src.utils.checkpoint import load_pretrained_state_dict
-from src.utils.file_ops import load_state_dict_from_url
+from src_old.utils.checkpoint import load_pretrained_state_dict
+from src_old.utils.file_ops import load_state_dict_from_url
 
 resnet_weights_urls = {
     'resnet18': ResNet18_Weights.IMAGENET1K_V1.url,

@@ -4,7 +4,7 @@ from typing import List
 
 import torch
 
-from src.utils.file_ops import get_absolute_path
+from src_old.utils.file_ops import get_absolute_path
 
 
 def read_txt(file_path):
