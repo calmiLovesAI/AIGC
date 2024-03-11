@@ -21,7 +21,7 @@ def display_in_window(image, tag="Resizable Image"):
 
 def display_detection_results_on_image(image, detection_results):
     """
-    Display the results of object vision on the picture.
+    Display the results of object detection on the picture.
     :param image: image path or image read through opencv
     :param detection_results: The result of object vision has a similar format:
     [{'score': confidence(float), 'label': category label(str),
@@ -29,7 +29,7 @@ def display_detection_results_on_image(image, detection_results):
             'ymin': y coordinate of upper left corner(int),
             'xmax': x coordinate of lower right corner(int),
             'ymax': y coordinate of lower right corner(int)}}, {...}, ...]
-    :return: image with vision results
+    :return: image with detection results
     """
     if isinstance(image, str):
         image = read_image(image, mode="bgr")
