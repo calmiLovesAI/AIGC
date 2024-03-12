@@ -31,3 +31,12 @@ python .\scripts\text2image.py -c .\experiments\txt2img.yaml
 ```commandline
 python .\scripts\text2image.py -c civitai
 ```
+
+# CV tasks:
+## 1. Object Detection
+### 1.1 command
+```commandline
+python .\app.py -t det2d -m [model_name] -f [picture_dir]
+```
+
+### 1.2 Supported models
