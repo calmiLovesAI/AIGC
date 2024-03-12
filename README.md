@@ -40,3 +40,5 @@ python .\app.py -t det2d -m [model_name] -f [picture_dir]
 ```
 
 ### 1.2 Supported models
+- [YoloS](https://huggingface.co/docs/transformers/model_doc/yolos)
+- 

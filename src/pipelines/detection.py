@@ -17,12 +17,13 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         "yolos": ["hustvl/yolos-tiny", "huggingface"],
     }
 
-    def __init__(self, model_name, threshold: float = 0.5, device: torch.device = torch.device("cuda")):
+    def __init__(self, model_name: str, threshold: float = 0.5, device: torch.device = torch.device("cuda")):
         """
         :param model_name:
         :param threshold: score threshold to keep object detection predictions.
         :param device:
         """
+        model_name = model_name.lower()
         self.threshold = threshold
         self.device = device
         if model_name not in ObjectDetection2dPipeline.model_zoo:
@@ -122,7 +123,6 @@ def draw_detection2d_results(image, detection_results, id2label):
         xmin, ymin, xmax, ymax = boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3]
 
         color = predefined_colors[label_id % len(predefined_colors)]
-        print(f"color = {color}")
         draw.rectangle((xmin, ymin, xmax, ymax), outline=color, width=2)
         draw.text((xmin, ymin), f"{category}: {score:.2f}", fill='blue')
 
