@@ -17,7 +17,7 @@ def save_image(image, save_folder=None, filename='img', suffix='.png'):
     :param suffix:
     :return:
     """
-    filename = generate_random_filename(filename, suffix)
+    filename = generate_random_filename(replace_spaces_and_slashes(filename), suffix)
     if save_folder is None:
         # Get the current date
         today_date = date.today()
@@ -34,3 +34,12 @@ def save_image(image, save_folder=None, filename='img', suffix='.png'):
     else:
         raise ValueError(f"Unsupported image type.")
     print(f"Saved to {save_path}.")
+
+
+def replace_spaces_and_slashes(s):
+    """
+    Replace spaces, slashes, and backslashes in a string with underscores.
+    :param s: string
+    :return:
+    """
+    return s.replace(' ', '_').replace('/', '_').replace('\\', '_')

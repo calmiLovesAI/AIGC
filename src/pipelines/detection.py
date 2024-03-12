@@ -14,10 +14,14 @@ from src_old.vision.detection_2d import get_image_paths
 
 class ObjectDetection2dPipeline(AbstractPipeline):
     model_zoo = {
-        "yolos": ["hustvl/yolos-tiny", "huggingface"],
+        "yolos": ["hustvl/yolos-tiny", "hustvl/yolos-small", "hustvl/yolos-base", "huggingface"],
+        "detr": ["facebook/detr-resnet-50", "facebook/detr-resnet-101", "huggingface"],
+        "deformable detr": ["SenseTime/deformable-detr", "huggingface"],
+        "conditional detr": ["microsoft/conditional-detr-resnet-50", "huggingface"],
     }
 
-    def __init__(self, model_name: str, threshold: float = 0.5, device: torch.device = torch.device("cuda")):
+    def __init__(self, model_name: str, model_id: int = 0, threshold: float = 0.5,
+                 device: torch.device = torch.device("cuda")):
         """
         :param model_name:
         :param threshold: score threshold to keep object detection predictions.
@@ -28,8 +32,8 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         self.device = device
         if model_name not in ObjectDetection2dPipeline.model_zoo:
             raise ValueError(f"{model_name} not found in the model_zoo.")
-        self.model_name = ObjectDetection2dPipeline.model_zoo[model_name][0]
-        self.model_source = ObjectDetection2dPipeline.model_zoo[model_name][1]
+        self.model_name = ObjectDetection2dPipeline.model_zoo[model_name][model_id]
+        self.model_source = ObjectDetection2dPipeline.model_zoo[model_name][-1]
         self.model, self.image_processor = self._init_model()
 
     def _init_model(self):
@@ -74,7 +78,7 @@ class ObjectDetection2dPipeline(AbstractPipeline):
 
             if save_result:
                 detected = draw_detection2d_results(img_path, detection_results, id2label=self.model.config.id2label)
-                save_image(image=detected, filename="detection")
+                save_image(image=detected, filename=self.model_name)
 
     def _detect_video(self):
         raise NotImplementedError
