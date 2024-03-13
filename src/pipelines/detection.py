@@ -14,13 +14,16 @@ from src_old.vision.detection_2d import get_image_paths
 
 class ObjectDetection2dPipeline(AbstractPipeline):
     model_zoo = {
-        "yolos": ["hustvl/yolos-tiny", "hustvl/yolos-small", "hustvl/yolos-base", "huggingface"],
-        "detr": ["facebook/detr-resnet-50", "facebook/detr-resnet-101", "huggingface"],
-        "deformable detr": ["SenseTime/deformable-detr", "huggingface"],
-        "conditional detr": ["microsoft/conditional-detr-resnet-50", "huggingface"],
+        "hustvl/yolos-tiny": "huggingface",
+        "hustvl/yolos-small": "huggingface",
+        "hustvl/yolos-base": "huggingface",
+        "facebook/detr-resnet-50": "huggingface",
+        "facebook/detr-resnet-101": "huggingface",
+        "SenseTime/deformable-detr": "huggingface",
+        "microsoft/conditional-detr-resnet-50": "huggingface",
     }
 
-    def __init__(self, model_name: str, model_id: int = 0, threshold: float = 0.5,
+    def __init__(self, model_name: str, threshold: float = 0.5,
                  device: torch.device = torch.device("cuda")):
         """
         :param model_name:
@@ -32,8 +35,8 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         self.device = device
         if model_name not in ObjectDetection2dPipeline.model_zoo:
             raise ValueError(f"{model_name} not found in the model_zoo.")
-        self.model_name = ObjectDetection2dPipeline.model_zoo[model_name][model_id]
-        self.model_source = ObjectDetection2dPipeline.model_zoo[model_name][-1]
+        self.model_name = model_name
+        self.model_source = ObjectDetection2dPipeline.model_zoo[model_name]
         self.model, self.image_processor = self._init_model()
 
     def _init_model(self):

@@ -33,13 +33,12 @@ python .\scripts\text2image.py -c civitai
 ```
 
 # CV tasks:
-## 1. Object Detection
-### 1.1 command
+## 1. command
 ```commandline
 python .\app.py -t det2d -m [model_name] -i [model_id] -f [picture_dir]
 ```
 
-### 1.2 Supported models
+### 2. Supported models
 - [YoloS](https://huggingface.co/docs/transformers/model_doc/yolos)
 - [DETR](https://huggingface.co/docs/transformers/model_doc/detr)
 - [Deformable DETR](https://huggingface.co/docs/transformers/model_doc/deformable_detr)
