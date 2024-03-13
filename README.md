@@ -32,14 +32,22 @@ python .\scripts\text2image.py -c .\experiments\txt2img.yaml
 python .\scripts\text2image.py -c civitai
 ```
 
-# CV tasks:
-## 1. command
-```commandline
-python .\app.py -t det2d -m [model_name] -i [model_id] -f [picture_dir]
-```
-
-### 2. Supported models
+# CV tasks
+## 1. Supported models
 - [YoloS](https://huggingface.co/docs/transformers/model_doc/yolos)
 - [DETR](https://huggingface.co/docs/transformers/model_doc/detr)
 - [Deformable DETR](https://huggingface.co/docs/transformers/model_doc/deformable_detr)
 - [Conditional DETR](https://huggingface.co/docs/transformers/model_doc/conditional_detr)
+
+## 2. List all supported models
+```commandline
+python .\summarize.py
+```
+## 3. Start the terminal
+```commandline
+python .\app.py -t [task_name] -m [model_name] -i [model_id] -f [picture_dir]
+```
+## 4. Start the webui
+```commandline
+python .\app_webui.py
+```
