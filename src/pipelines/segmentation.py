@@ -1,8 +1,11 @@
 import os
+import random
 from typing import Dict
 
 import torch
+from PIL import Image, ImageDraw
 
+from src.colors import predefined_colors
 from src.pipelines.pipeline import AbstractPipeline
 from src.save import save_image
 from src_old.utils.file_ops import get_absolute_path
@@ -94,9 +97,34 @@ class Segmentation2dPipeline(AbstractPipeline):
                                             overlap_mask_area_threshold=self.overlap_mask_area_threshold)
                 print(segmentation_results)
 
-            # if save_result:
-            #     detected = draw_detection2d_results(img_path, detection_results, id2label=self.model.config.id2label)
-            #     save_image(image=detected, filename=self.model_name)
+            if save_result:
+                segmented = draw_segmentation2d_results(img_path, segmentation_results, 0.5)
+                save_image(image=segmented, filename=self.model_name)
 
     def _segment_video(self):
         raise NotImplementedError
+
+
+def draw_segmentation2d_results(image, segmentation_results, opacity):
+    """
+    Display the results of semantic segmentation on the image.
+    :param image: image path or image read through PIL.Image
+    :param segmentation_results: List of dict, [{'score': float, 'label': str, 'mask': PIL.Image.Image mode=L}, ...]
+    :param opacity: float, the value range is 0.0~1.0, 0.0 means completely transparent, 1.0 means completely opaque.
+    :return: PIL.Image.Image, image with segmentation results
+    """
+    if isinstance(image, str):
+        image = Image.open(image)
+
+    image_copy = image.copy()
+    draw = ImageDraw.Draw(image_copy)
+    colors = random.sample(predefined_colors, len(predefined_colors))
+
+    for i in range(len(segmentation_results)):
+        score = segmentation_results[i]['score']  # float
+        label = segmentation_results[i]['label']  # str
+        mask = segmentation_results[i]['mask']  # PIL.Image.Image
+        # Draw the mask on the image
+        draw.bitmap((0, 0), mask, fill=colors[i])
+
+    return Image.blend(image, image_copy, opacity)
