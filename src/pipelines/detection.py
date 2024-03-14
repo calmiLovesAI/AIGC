@@ -1,8 +1,9 @@
 import os
+from typing import Dict
 
 import numpy as np
 import torch
-from transformers import AutoImageProcessor, AutoModelForObjectDetection
+from transformers import AutoImageProcessor, AutoModelForObjectDetection, PreTrainedModel
 from PIL import Image, ImageDraw
 
 from src.colors import predefined_colors
@@ -13,15 +14,17 @@ from src_old.vision.detection_2d import get_image_paths
 
 
 class ObjectDetection2dPipeline(AbstractPipeline):
-    model_zoo = {
-        "hustvl/yolos-tiny": "huggingface",
-        "hustvl/yolos-small": "huggingface",
-        "hustvl/yolos-base": "huggingface",
-        "facebook/detr-resnet-50": "huggingface",
-        "facebook/detr-resnet-101": "huggingface",
-        "SenseTime/deformable-detr": "huggingface",
-        "microsoft/conditional-detr-resnet-50": "huggingface",
+    huggingface_model: Dict[str, PreTrainedModel] = {
+        "hustvl/yolos-tiny": AutoModelForObjectDetection,
+        "hustvl/yolos-small": AutoModelForObjectDetection,
+        "hustvl/yolos-base": AutoModelForObjectDetection,
+        "facebook/detr-resnet-50": AutoModelForObjectDetection,
+        "facebook/detr-resnet-101": AutoModelForObjectDetection,
+        "SenseTime/deformable-detr": AutoModelForObjectDetection,
+        "microsoft/conditional-detr-resnet-50": AutoModelForObjectDetection,
     }
+
+    other_model = {}
 
     def __init__(self, model_name: str, threshold: float = 0.5,
                  device: torch.device = torch.device("cuda")):
@@ -31,12 +34,16 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         :param device:
         """
         model_name = model_name.lower()
+        model_zoo = {**ObjectDetection2dPipeline.huggingface_model, **ObjectDetection2dPipeline.other_model}
         self.threshold = threshold
         self.device = device
-        if model_name not in ObjectDetection2dPipeline.model_zoo:
+        if model_name not in model_zoo:
             raise ValueError(f"{model_name} not found in the model_zoo.")
         self.model_name = model_name
-        self.model_source = ObjectDetection2dPipeline.model_zoo[model_name]
+        if model_name in ObjectDetection2dPipeline.huggingface_model:
+            self.model_source = "huggingface"
+        else:
+            self.model_source = "other"
         self.model, self.image_processor = self._init_model()
 
     def _init_model(self):
