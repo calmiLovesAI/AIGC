@@ -14,3 +14,4 @@ omegaconf
 xformers
 compel
 gradio
+ultralytics
