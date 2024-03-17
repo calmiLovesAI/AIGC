@@ -31,6 +31,8 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         "yolo_8_m": "ultralytics",
         "yolo_8_l": "ultralytics",
         "yolo_8_x": "ultralytics",
+        "yolo_9_c": "ultralytics",
+        "yolo_9_e": "ultralytics",
     }
 
     def __init__(self, model_name: str, threshold: float = 0.5,
