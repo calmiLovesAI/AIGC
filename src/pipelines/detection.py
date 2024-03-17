@@ -26,7 +26,11 @@ class ObjectDetection2dPipeline(AbstractPipeline):
     }
 
     other_model = {
-        "yolo_8_n": "ultralytics"
+        "yolo_8_n": "ultralytics",
+        "yolo_8_s": "ultralytics",
+        "yolo_8_m": "ultralytics",
+        "yolo_8_l": "ultralytics",
+        "yolo_8_x": "ultralytics",
     }
 
     def __init__(self, model_name: str, threshold: float = 0.5,
@@ -69,6 +73,7 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         return model, None
 
     def predict(self, input_file_or_files, input_file_type: str = 'img', save_result: bool = True):
+        # Convert relative paths to absolute paths.
         input_file_or_files = get_absolute_path(relative_path=input_file_or_files)
         if input_file_type == "img":
             self._detect_img(input_file_or_files, save_result)

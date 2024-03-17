@@ -7,6 +7,12 @@ from src_old.utils.file_ops import download_file, create_directory_if_not_exists
 
 
 def load_ultralytics_model(model_name: str, download_root: str = './yolo'):
+    """
+    load ultralytics models, see docs: https://docs.ultralytics.com/
+    :param model_name: str, the name of model
+    :param download_root: str, where the model should be downloaded.
+    :return: ultralytics YOLO
+    """
     # download model
     model_filename = model_name + ".pt"
     model_path = get_absolute_path(os.path.join('./downloads', download_root, model_filename))
