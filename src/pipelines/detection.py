@@ -7,6 +7,7 @@ from transformers import AutoImageProcessor, AutoModelForObjectDetection, PreTra
 from PIL import Image, ImageDraw
 
 from src.colors import predefined_colors
+from src.models.yolo import load_ultralytics_model, yolo_detect
 from src.pipelines.pipeline import AbstractPipeline
 from src.save import save_image
 from src_old.utils.file_ops import get_absolute_path
@@ -24,7 +25,9 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         "microsoft/conditional-detr-resnet-50": AutoModelForObjectDetection,
     }
 
-    other_model = {}
+    other_model = {
+        "yolo_8_n": "ultralytics"
+    }
 
     def __init__(self, model_name: str, threshold: float = 0.5,
                  device: torch.device = torch.device("cuda")):
@@ -43,7 +46,7 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         if model_name in ObjectDetection2dPipeline.huggingface_model:
             self.model_source = "huggingface"
         else:
-            self.model_source = "other"
+            self.model_source = ObjectDetection2dPipeline.other_model[model_name]
         self.model, self.image_processor = self._init_model()
 
     def _init_model(self):
@@ -61,7 +64,9 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         return model, image_processor
 
     def _load_other_model(self):
-        raise NotImplementedError
+        if self.model_source == "ultralytics":
+            model = load_ultralytics_model(model_name=self.model_name)
+        return model, None
 
     def predict(self, input_file_or_files, input_file_type: str = 'img', save_result: bool = True):
         input_file_or_files = get_absolute_path(relative_path=input_file_or_files)
@@ -79,15 +84,21 @@ class ObjectDetection2dPipeline(AbstractPipeline):
         else:
             # single picture
             image_paths = [input_img_or_imgs]
-        for img_path in image_paths:
-            # loop through all images
-            if self.model_source == "huggingface":
+        if self.model_source == "huggingface":
+            for img_path in image_paths:
+                # loop through all images
                 detection_results = hugging_face_model_detection_2d(img_path, self.image_processor, self.model,
                                                                     self.threshold)
                 print(detection_results)
+                if save_result:
+                    detected = draw_detection2d_results(img_path, detection_results,
+                                                        id2label=self.model.config.id2label)
+                    save_image(image=detected, filename=self.model_name)
 
-            if save_result:
-                detected = draw_detection2d_results(img_path, detection_results, id2label=self.model.config.id2label)
+        if self.model_source == "ultralytics":
+            detection_results, id2label = yolo_detect(model=self.model, input_data=image_paths, conf=self.threshold)
+            for i in range(len(image_paths)):
+                detected = draw_detection2d_results(image_paths[i], detection_results[i], id2label=id2label)
                 save_image(image=detected, filename=self.model_name)
 
     def _detect_video(self):

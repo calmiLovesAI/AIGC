@@ -49,6 +49,12 @@ def get_file_extension(file_path):
 
 
 def download_file(url, model_dir):
+    """
+    Download file from 'url' to 'model_dir'.
+    :param url:
+    :param model_dir:
+    :return:
+    """
     t0 = time.time()
     if os.path.exists(model_dir):
         print(f"File '{model_dir}' already exists.")
