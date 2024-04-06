@@ -15,3 +15,9 @@ xformers
 compel
 gradio
 ultralytics
+einops
+kornia
+open-clip-torch
+invisible-watermark
+streamlit
+streamlit-drawable-canvas
