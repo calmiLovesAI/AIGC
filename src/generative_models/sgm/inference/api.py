@@ -5,15 +5,15 @@ from typing import Optional
 
 from omegaconf import OmegaConf
 
-from sgm.inference.helpers import (Img2ImgDiscretizationWrapper, do_img2img,
-                                   do_sample)
-from sgm.modules.diffusionmodules.sampling import (DPMPP2MSampler,
-                                                   DPMPP2SAncestralSampler,
-                                                   EulerAncestralSampler,
-                                                   EulerEDMSampler,
-                                                   HeunEDMSampler,
-                                                   LinearMultistepSampler)
-from sgm.util import load_model_from_config
+from .helpers import (Img2ImgDiscretizationWrapper, do_img2img,
+                      do_sample)
+from src.generative_models.sgm.modules.diffusionmodules.sampling import (DPMPP2MSampler,
+                                                                         DPMPP2SAncestralSampler,
+                                                                         EulerAncestralSampler,
+                                                                         EulerEDMSampler,
+                                                                         HeunEDMSampler,
+                                                                         LinearMultistepSampler)
+from src.generative_models.sgm.util import load_model_from_config
 
 
 class ModelArchitecture(str, Enum):
@@ -154,12 +154,12 @@ model_specs = {
 
 class SamplingPipeline:
     def __init__(
-        self,
-        model_id: ModelArchitecture,
-        model_path="checkpoints",
-        config_path="configs/inference",
-        device="cuda",
-        use_fp16=True,
+            self,
+            model_id: ModelArchitecture,
+            model_path="checkpoints",
+            config_path="configs/inference",
+            device="cuda",
+            use_fp16=True,
     ) -> None:
         if model_id not in model_specs:
             raise ValueError(f"Model {model_id} not supported")
@@ -182,12 +182,12 @@ class SamplingPipeline:
         return model
 
     def text_to_image(
-        self,
-        params: SamplingParams,
-        prompt: str,
-        negative_prompt: str = "",
-        samples: int = 1,
-        return_latents: bool = False,
+            self,
+            params: SamplingParams,
+            prompt: str,
+            negative_prompt: str = "",
+            samples: int = 1,
+            return_latents: bool = False,
     ):
         sampler = get_sampler_config(params)
         value_dict = asdict(params)
@@ -210,13 +210,13 @@ class SamplingPipeline:
         )
 
     def image_to_image(
-        self,
-        params: SamplingParams,
-        image,
-        prompt: str,
-        negative_prompt: str = "",
-        samples: int = 1,
-        return_latents: bool = False,
+            self,
+            params: SamplingParams,
+            image,
+            prompt: str,
+            negative_prompt: str = "",
+            samples: int = 1,
+            return_latents: bool = False,
     ):
         sampler = get_sampler_config(params)
 
@@ -243,13 +243,13 @@ class SamplingPipeline:
         )
 
     def refiner(
-        self,
-        params: SamplingParams,
-        image,
-        prompt: str,
-        negative_prompt: Optional[str] = None,
-        samples: int = 1,
-        return_latents: bool = False,
+            self,
+            params: SamplingParams,
+            image,
+            prompt: str,
+            negative_prompt: Optional[str] = None,
+            samples: int = 1,
+            return_latents: bool = False,
     ):
         sampler = get_sampler_config(params)
         value_dict = {
