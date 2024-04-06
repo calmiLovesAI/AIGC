@@ -21,3 +21,5 @@ open-clip-torch
 invisible-watermark
 streamlit
 streamlit-drawable-canvas
+torchdata
+webdataset
