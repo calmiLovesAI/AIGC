@@ -23,3 +23,9 @@ streamlit
 streamlit-drawable-canvas
 torchdata
 webdataset
+jsonmerge
+clip-anytorch
+clean-fid
+torchdiffeq
+torchsde
+wandb
