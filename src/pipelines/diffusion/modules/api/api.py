@@ -16,20 +16,20 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from secrets import compare_digest
 
-import modules.shared as shared
-from modules import sd_samplers, deepbooru, sd_hijack, images, scripts, ui, postprocessing, errors, restart, shared_items, script_callbacks, generation_parameters_copypaste, sd_models
-from modules.api import models
-from modules.shared import opts
-from modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusionProcessingImg2Img, process_images
-from modules.textual_inversion.textual_inversion import create_embedding, train_embedding
-from modules.hypernetworks.hypernetwork import create_hypernetwork, train_hypernetwork
+import src.pipelines.diffusion.modules.shared as shared
+from src.pipelines.diffusion.modules import sd_samplers, deepbooru, sd_hijack, images, scripts, ui, postprocessing, errors, restart, shared_items, script_callbacks, generation_parameters_copypaste, sd_models
+from src.pipelines.diffusion.modules.api import models
+from src.pipelines.diffusion.modules.shared import opts
+from src.pipelines.diffusion.modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusionProcessingImg2Img, process_images
+from src.pipelines.diffusion.modules.textual_inversion.textual_inversion import create_embedding, train_embedding
+from src.pipelines.diffusion.modules.hypernetworks.hypernetwork import create_hypernetwork, train_hypernetwork
 from PIL import PngImagePlugin, Image
-from modules.sd_models_config import find_checkpoint_config_near_filename
-from modules.realesrgan_model import get_realesrgan_models
-from modules import devices
+from src.pipelines.diffusion.modules.sd_models_config import find_checkpoint_config_near_filename
+from src.pipelines.diffusion.modules.realesrgan_model import get_realesrgan_models
+from src.pipelines.diffusion.modules import devices
 from typing import Any
-import piexif
-import piexif.helper
+import src.piexif as piexif
+import src.piexif.helper
 from contextlib import closing
 
 
@@ -599,11 +599,11 @@ class Api:
         ]
 
     def get_sd_models(self):
-        import modules.sd_models as sd_models
+        import src.pipelines.diffusion.modules.sd_models as sd_models
         return [{"title": x.title, "model_name": x.model_name, "hash": x.shorthash, "sha256": x.sha256, "filename": x.filename, "config": find_checkpoint_config_near_filename(x)} for x in sd_models.checkpoints_list.values()]
 
     def get_sd_vaes(self):
-        import modules.sd_vae as sd_vae
+        import src.pipelines.diffusion.modules.sd_vae as sd_vae
         return [{"model_name": x, "filename": sd_vae.vae_dict[x]} for x in sd_vae.vae_dict.keys()]
 
     def get_hypernetworks(self):
@@ -755,7 +755,7 @@ class Api:
         return models.MemoryResponse(ram=ram, cuda=cuda)
 
     def get_extensions_list(self):
-        from modules import extensions
+        from src.pipelines.diffusion.modules import extensions
         extensions.list_extensions()
         ext_list = []
         for ext in extensions.extensions:
