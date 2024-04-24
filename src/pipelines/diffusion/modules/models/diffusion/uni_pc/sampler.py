@@ -3,7 +3,7 @@
 import torch
 
 from .uni_pc import NoiseScheduleVP, model_wrapper, UniPC
-from modules import shared, devices
+from src.pipelines.diffusion.modules import shared, devices
 
 
 class UniPCSampler(object):

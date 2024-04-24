@@ -10,10 +10,10 @@ from random import shuffle, choices
 
 import random
 import tqdm
-from modules import devices, shared
+from src.pipelines.diffusion.modules import devices, shared
 import re
 
-from ldm.modules.distributions.distributions import DiagonalGaussianDistribution
+from src.stablediffusion.ldm.modules.distributions.distributions import DiagonalGaussianDistribution
 
 re_numbers_at_start = re.compile(r"^[-\d]+\s*")
 

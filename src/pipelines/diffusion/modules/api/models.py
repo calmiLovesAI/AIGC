@@ -3,8 +3,8 @@ import inspect
 from pydantic import BaseModel, Field, create_model
 from typing import Any, Optional, Literal
 from inflection import underscore
-from modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusionProcessingImg2Img
-from modules.shared import sd_upscalers, opts, parser
+from src.pipelines.diffusion.modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusionProcessingImg2Img
+from src.pipelines.diffusion.modules.shared import sd_upscalers, opts, parser
 
 API_NOT_ALLOWED = [
     "self",

@@ -2,9 +2,9 @@ import json
 
 import gradio as gr
 
-from modules import scripts, ui, errors
-from modules.shared import cmd_opts
-from modules.ui_components import ToolButton
+from src.pipelines.diffusion.modules import scripts, ui, errors
+from src.pipelines.diffusion.modules.shared import cmd_opts
+from src.pipelines.diffusion.modules.ui_components import ToolButton
 
 
 class ScriptSeed(scripts.ScriptBuiltinUI):

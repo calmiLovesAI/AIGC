@@ -1,8 +1,8 @@
 import gradio as gr
 
-from modules import scripts, sd_models
-from modules.ui_common import create_refresh_button
-from modules.ui_components import InputAccordion
+from src.pipelines.diffusion.modules import scripts, sd_models
+from src.pipelines.diffusion.modules.ui_common import create_refresh_button
+from src.pipelines.diffusion.modules.ui_components import InputAccordion
 
 
 class ScriptRefiner(scripts.ScriptBuiltinUI):

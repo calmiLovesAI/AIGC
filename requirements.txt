@@ -29,3 +29,8 @@ clean-fid
 torchdiffeq
 torchsde
 wandb
+fastapi
+uvicorn
+inflection
+pydantic
+basicsr

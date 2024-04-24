@@ -131,7 +131,7 @@ def extract_image_data_embed(image):
 
 
 def caption_image_overlay(srcimage, title, footerLeft, footerMid, footerRight, textfont=None):
-    from modules.images import get_font
+    from src.pipelines.diffusion.modules.images import get_font
     if textfont:
         warnings.warn(
             'passing in a textfont to caption_image_overlay is deprecated and does nothing',

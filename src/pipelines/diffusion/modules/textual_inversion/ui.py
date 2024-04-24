@@ -2,12 +2,12 @@ import html
 
 import gradio as gr
 
-import modules.textual_inversion.textual_inversion
-from modules import sd_hijack, shared
+import src.pipelines.diffusion.modules.textual_inversion.textual_inversion
+from src.pipelines.diffusion.modules import sd_hijack, shared
 
 
 def create_embedding(name, initialization_text, nvpt, overwrite_old):
-    filename = modules.textual_inversion.textual_inversion.create_embedding(name, nvpt, overwrite_old, init_text=initialization_text)
+    filename = src.pipelines.diffusion.modules.textual_inversion.textual_inversion.create_embedding(name, nvpt, overwrite_old, init_text=initialization_text)
 
     sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
 
