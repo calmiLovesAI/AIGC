@@ -1,16 +1,16 @@
-import src.pipelines.diffusion.modules.scripts as scripts
+import modules.scripts as scripts
 import gradio as gr
 import ast
 import copy
 
-from src.pipelines.diffusion.modules.processing import Processed
-from src.pipelines.diffusion.modules.shared import cmd_opts
+from modules.processing import Processed
+from modules.shared import cmd_opts
 
 
 def convertExpr2Expression(expr):
     expr.lineno = 0
     expr.col_offset = 0
-    result = ast.Expression(expr.value, lineno=0, col_offset=0)
+    result = ast.Expression(expr.value, lineno=0, col_offset = 0)
 
     return result
 
@@ -53,6 +53,7 @@ p.steps = 10
 
 return process_images(p)
 """
+
 
         code = gr.Code(value=example, language="python", label="Python code", elem_id=self.elem_id("code"))
         indent_level = gr.Number(label='Indent level', value=2, precision=0, elem_id=self.elem_id("indent_level"))
