@@ -1,4 +1,4 @@
-from modules import shared
+from src.pipelines.diffusion.modules import shared
 
 
 class FaceRestoration:

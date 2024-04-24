@@ -4,7 +4,7 @@ import os.path
 import threading
 import time
 
-from modules.paths import data_path, script_path
+from src.pipelines.diffusion.modules.paths import data_path, script_path
 
 cache_filename = os.environ.get('SD_WEBUI_CACHE_FILE', os.path.join(data_path, "cache.json"))
 cache_data = None

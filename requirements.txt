@@ -34,3 +34,6 @@ uvicorn
 inflection
 pydantic
 basicsr
+facelib
+facexlib
+realesrgan

@@ -2,7 +2,7 @@ from functools import wraps
 import html
 import time
 
-from modules import shared, progress, errors, devices, fifo_lock
+from src.pipelines.diffusion.modules import shared, progress, errors, devices, fifo_lock
 
 queue_lock = fifo_lock.FIFOLock()
 

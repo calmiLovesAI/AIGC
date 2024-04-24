@@ -1,5 +1,5 @@
-from modules import extra_networks, shared
-from modules.hypernetworks import hypernetwork
+from src.pipelines.diffusion.modules import extra_networks, shared
+from src.pipelines.diffusion.modules.hypernetworks import hypernetwork
 
 
 class ExtraNetworkHypernet(extra_networks.ExtraNetwork):

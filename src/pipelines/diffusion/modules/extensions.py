@@ -5,8 +5,8 @@ import os
 import threading
 import re
 
-from modules import shared, errors, cache, scripts
-from modules.gitpython_hack import Repo
+from src.pipelines.diffusion.modules import shared, errors, cache, scripts
+from src.pipelines.diffusion.modules.gitpython_hack import Repo
 from modules.paths_internal import extensions_dir, extensions_builtin_dir, script_path  # noqa: F401
 
 

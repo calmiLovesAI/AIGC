@@ -4,7 +4,7 @@ import re
 import logging
 from collections import defaultdict
 
-from modules import errors
+from src.pipelines.diffusion.modules import errors
 
 extra_network_registry = {}
 extra_network_aliases = {}

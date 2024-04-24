@@ -4,10 +4,10 @@ import numpy as np
 import torch
 from PIL import Image
 
-import modules.esrgan_model_arch as arch
-from modules import modelloader, images, devices
-from modules.shared import opts
-from modules.upscaler import Upscaler, UpscalerData
+import src.pipelines.diffusion.modules.esrgan_model_arch as arch
+from src.pipelines.diffusion.modules import modelloader, images, devices
+from src.pipelines.diffusion.modules.shared import opts
+from src.pipelines.diffusion.modules.upscaler import Upscaler, UpscalerData
 
 
 def mod2normal(state_dict):

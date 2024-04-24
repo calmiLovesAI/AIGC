@@ -3,8 +3,8 @@ import os
 import facexlib
 import gfpgan
 
-import modules.face_restoration
-from modules import paths, shared, devices, modelloader, errors
+import src.pipelines.diffusion.modules.face_restoration
+from src.pipelines.diffusion.modules import paths, shared, devices, modelloader, errors
 
 model_dir = "GFPGAN"
 user_path = None

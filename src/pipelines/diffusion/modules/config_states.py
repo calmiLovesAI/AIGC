@@ -9,8 +9,8 @@ import tqdm
 from datetime import datetime
 import git
 
-from modules import shared, extensions, errors
-from modules.paths_internal import script_path, config_states_dir
+from src.pipelines.diffusion.modules import shared, extensions, errors
+from src.pipelines.diffusion.modules.paths_internal import script_path, config_states_dir
 
 all_config_states = {}
 

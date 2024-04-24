@@ -1,6 +1,6 @@
 import gradio as gr
 
-from modules import scripts, ui_tempdir, patches
+from src.pipelines.diffusion.modules import scripts, ui_tempdir, patches
 
 
 def add_classes_to_gradio_component(comp):
