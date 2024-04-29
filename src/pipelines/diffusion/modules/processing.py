@@ -15,7 +15,6 @@ import cv2
 from skimage import exposure
 from typing import Any
 
-import src.pipelines.diffusion.modules.sd_hijack
 from src.pipelines.diffusion.modules import devices, prompt_parser, masking, sd_samplers, lowvram, generation_parameters_copypaste, extra_networks, sd_vae_approx, scripts, sd_samplers_common, sd_unet, errors, rng
 from src.pipelines.diffusion.modules.rng import slerp # noqa: F401
 from src.pipelines.diffusion.modules.sd_hijack import model_hijack
@@ -23,13 +22,11 @@ from src.pipelines.diffusion.modules.sd_samplers_common import images_tensor_to_
 from src.pipelines.diffusion.modules.shared import opts, cmd_opts, state
 import src.pipelines.diffusion.modules.shared as shared
 import src.pipelines.diffusion.modules.paths as paths
-import src.pipelines.diffusion.modules.face_restoration
 import src.pipelines.diffusion.modules.images as images
-import src.pipelines.diffusion.modules.styles
 import src.pipelines.diffusion.modules.sd_models as sd_models
 import src.pipelines.diffusion.modules.sd_vae as sd_vae
-from src.stablediffusion.ldm.data.util import AddMiDaS
-from src.stablediffusion.ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
+from src.open_source.stablediffusion.ldm.data.util import AddMiDaS
+from src.open_source.stablediffusion.ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
 
 from einops import repeat, rearrange
 from blendmodes.blend import blendLayers, BlendType

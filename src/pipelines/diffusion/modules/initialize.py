@@ -24,10 +24,10 @@ def imports():
     from src.pipelines.diffusion.modules import paths, timer, import_hook, errors  # noqa: F401
     startup_timer.record("setup paths")
 
-    import src.stablediffusion.ldm.modules.encoders.modules  # noqa: F401
+    import src.open_source.stablediffusion.ldm.modules.encoders.modules  # noqa: F401
     startup_timer.record("import ldm")
 
-    import src.generative_models.sgm.modules.encoders.modules  # noqa: F401
+    import src.open_source.generative_models.sgm.modules.encoders.modules  # noqa: F401
     startup_timer.record("import sgm")
 
     from src.pipelines.diffusion.modules import shared_init

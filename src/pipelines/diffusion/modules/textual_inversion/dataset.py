@@ -13,7 +13,7 @@ import tqdm
 from src.pipelines.diffusion.modules import devices, shared
 import re
 
-from src.stablediffusion.ldm.modules.distributions.distributions import DiagonalGaussianDistribution
+from src.open_source.stablediffusion.ldm.modules.distributions.distributions import DiagonalGaussianDistribution
 
 re_numbers_at_start = re.compile(r"^[-\d]+\s*")
 

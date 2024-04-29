@@ -10,8 +10,8 @@ from collections import namedtuple
 import re
 
 import numpy as np
-import src.piexif as piexif
-import src.piexif.helper
+import src.open_source.piexif as piexif
+import src.open_source.piexif.helper
 from PIL import Image, ImageFont, ImageDraw, ImageColor, PngImagePlugin
 import string
 import json
@@ -556,7 +556,7 @@ def save_image_with_geninfo(image, geninfo, filename, extension=None, existing_p
         if opts.enable_pnginfo and geninfo is not None:
             exif_bytes = piexif.dump({
                 "Exif": {
-                    piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(geninfo or "", encoding="unicode")
+                    piexif.ExifIFD.UserComment: src.open_source.piexif.helper.UserComment.dump(geninfo or "", encoding="unicode")
                 },
             })
 
@@ -734,7 +734,7 @@ def read_info_from_image(image: Image.Image) -> tuple[str | None, dict]:
             exif = None
         exif_comment = (exif or {}).get("Exif", {}).get(piexif.ExifIFD.UserComment, b'')
         try:
-            exif_comment = piexif.helper.UserComment.load(exif_comment)
+            exif_comment = src.open_source.piexif.helper.UserComment.load(exif_comment)
         except ValueError:
             exif_comment = exif_comment.decode('utf8', errors="ignore")
 

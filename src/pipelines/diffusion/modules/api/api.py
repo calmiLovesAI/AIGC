@@ -28,8 +28,8 @@ from src.pipelines.diffusion.modules.sd_models_config import find_checkpoint_con
 from src.pipelines.diffusion.modules.realesrgan_model import get_realesrgan_models
 from src.pipelines.diffusion.modules import devices
 from typing import Any
-import src.piexif as piexif
-import src.piexif.helper
+import src.open_source.piexif as piexif
+import src.open_source.piexif.helper
 from contextlib import closing
 
 
@@ -117,7 +117,7 @@ def encode_pil_to_base64(image):
                 image = image.convert("RGB")
             parameters = image.info.get('parameters', None)
             exif_bytes = piexif.dump({
-                "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
+                "Exif": {piexif.ExifIFD.UserComment: src.open_source.piexif.helper.UserComment.dump(parameters or "", encoding="unicode")}
             })
             if opts.samples_format.lower() in ("jpg", "jpeg"):
                 image.save(output_bytes, format="JPEG", exif = exif_bytes, quality=opts.jpeg_quality)
