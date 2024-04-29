@@ -15,21 +15,21 @@ import cv2
 from skimage import exposure
 from typing import Any
 
-import modules.sd_hijack
-from modules import devices, prompt_parser, masking, sd_samplers, lowvram, generation_parameters_copypaste, extra_networks, sd_vae_approx, scripts, sd_samplers_common, sd_unet, errors, rng
-from modules.rng import slerp # noqa: F401
-from modules.sd_hijack import model_hijack
-from modules.sd_samplers_common import images_tensor_to_samples, decode_first_stage, approximation_indexes
-from modules.shared import opts, cmd_opts, state
-import modules.shared as shared
-import modules.paths as paths
-import modules.face_restoration
-import modules.images as images
-import modules.styles
-import modules.sd_models as sd_models
-import modules.sd_vae as sd_vae
-from ldm.data.util import AddMiDaS
-from ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
+import src.pipelines.diffusion.modules.sd_hijack
+from src.pipelines.diffusion.modules import devices, prompt_parser, masking, sd_samplers, lowvram, generation_parameters_copypaste, extra_networks, sd_vae_approx, scripts, sd_samplers_common, sd_unet, errors, rng
+from src.pipelines.diffusion.modules.rng import slerp # noqa: F401
+from src.pipelines.diffusion.modules.sd_hijack import model_hijack
+from src.pipelines.diffusion.modules.sd_samplers_common import images_tensor_to_samples, decode_first_stage, approximation_indexes
+from src.pipelines.diffusion.modules.shared import opts, cmd_opts, state
+import src.pipelines.diffusion.modules.shared as shared
+import src.pipelines.diffusion.modules.paths as paths
+import src.pipelines.diffusion.modules.face_restoration
+import src.pipelines.diffusion.modules.images as images
+import src.pipelines.diffusion.modules.styles
+import src.pipelines.diffusion.modules.sd_models as sd_models
+import src.pipelines.diffusion.modules.sd_vae as sd_vae
+from src.stablediffusion.ldm.data.util import AddMiDaS
+from src.stablediffusion.ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
 
 from einops import repeat, rearrange
 from blendmodes.blend import blendLayers, BlendType

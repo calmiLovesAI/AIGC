@@ -4,11 +4,11 @@ import signal
 import sys
 import re
 
-from modules.timer import startup_timer
+from src.pipelines.diffusion.modules.timer import startup_timer
 
 
 def gradio_server_name():
-    from modules.shared_cmd_options import cmd_opts
+    from src.pipelines.diffusion.modules.shared_cmd_options import cmd_opts
 
     if cmd_opts.server_name:
         return cmd_opts.server_name
@@ -66,7 +66,7 @@ def fix_asyncio_event_loop_policy():
 
 
 def restore_config_state_file():
-    from modules import shared, config_states
+    from src.pipelines.diffusion.modules import shared, config_states
 
     config_state_file = shared.opts.restore_config_state_file
     if config_state_file == "":
@@ -86,7 +86,7 @@ def restore_config_state_file():
 
 
 def validate_tls_options():
-    from modules.shared_cmd_options import cmd_opts
+    from src.pipelines.diffusion.modules.shared_cmd_options import cmd_opts
 
     if not (cmd_opts.tls_keyfile and cmd_opts.tls_certfile):
         return
@@ -109,7 +109,7 @@ def get_gradio_auth_creds():
     Convert the gradio_auth and gradio_auth_path commandline arguments into
     an iterable of (username, password) tuples.
     """
-    from modules.shared_cmd_options import cmd_opts
+    from src.pipelines.diffusion.modules.shared_cmd_options import cmd_opts
 
     def process_credential_line(s):
         s = s.strip()
@@ -151,7 +151,7 @@ def dumpstacks():
 def configure_sigint_handler():
     # make the program just exit at ctrl+c without waiting for anything
 
-    from modules import shared
+    from src.pipelines.diffusion.modules import shared
 
     def sigint_handler(sig, frame):
         print(f'Interrupted with signal {sig} in {frame}')
@@ -168,8 +168,8 @@ def configure_sigint_handler():
 
 
 def configure_opts_onchange():
-    from modules import shared, sd_models, sd_vae, ui_tempdir, sd_hijack
-    from modules.call_queue import wrap_queued_call
+    from src.pipelines.diffusion.modules import shared, sd_models, sd_vae, ui_tempdir, sd_hijack
+    from src.pipelines.diffusion.modules.call_queue import wrap_queued_call
 
     shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(lambda: sd_models.reload_model_weights()), call=False)
     shared.opts.onchange("sd_vae", wrap_queued_call(lambda: sd_vae.reload_vae_weights()), call=False)
@@ -191,7 +191,7 @@ def setup_middleware(app):
 
 def configure_cors_middleware(app):
     from starlette.middleware.cors import CORSMiddleware
-    from modules.shared_cmd_options import cmd_opts
+    from src.pipelines.diffusion.modules.shared_cmd_options import cmd_opts
 
     cors_options = {
         "allow_methods": ["*"],

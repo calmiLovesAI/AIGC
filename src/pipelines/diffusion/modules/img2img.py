@@ -6,15 +6,15 @@ import numpy as np
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance, UnidentifiedImageError
 import gradio as gr
 
-from modules import images as imgutil
-from modules.generation_parameters_copypaste import create_override_settings_dict, parse_generation_parameters
-from modules.processing import Processed, StableDiffusionProcessingImg2Img, process_images
-from modules.shared import opts, state
-from modules.sd_models import get_closet_checkpoint_match
-import modules.shared as shared
-import modules.processing as processing
-from modules.ui import plaintext_to_html
-import modules.scripts
+from src.pipelines.diffusion.modules import images as imgutil
+from src.pipelines.diffusion.modules.generation_parameters_copypaste import create_override_settings_dict, parse_generation_parameters
+from src.pipelines.diffusion.modules.processing import Processed, StableDiffusionProcessingImg2Img, process_images
+from src.pipelines.diffusion.modules.shared import opts, state
+from src.pipelines.diffusion.modules.sd_models import get_closet_checkpoint_match
+import src.pipelines.diffusion.modules.shared as shared
+import src.pipelines.diffusion.modules.processing as processing
+from src.pipelines.diffusion.modules.ui import plaintext_to_html
+import src.pipelines.diffusion.modules.scripts as m_scripts
 
 
 def process_batch(p, input_dir, output_dir, inpaint_mask_dir, args, to_scale=False, scale_by=1.0, use_png_info=False, png_info_props=None, png_info_dir=None):
@@ -125,7 +125,7 @@ def process_batch(p, input_dir, output_dir, inpaint_mask_dir, args, to_scale=Fal
             else:
                 p.override_settings['samples_filename_pattern'] = f'{image_path.stem}'
 
-        proc = modules.scripts.scripts_img2img.run(p, *args)
+        proc = m_scripts.scripts_img2img.run(p, *args)
 
         if proc is None:
             p.override_settings.pop('save_images_replace_action', None)

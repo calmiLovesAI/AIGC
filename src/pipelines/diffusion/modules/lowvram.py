@@ -1,5 +1,5 @@
 import torch
-from modules import devices, shared
+from src.pipelines.diffusion.modules import devices, shared
 
 module_in_gpu = None
 cpu = torch.device("cpu")

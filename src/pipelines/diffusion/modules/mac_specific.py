@@ -3,9 +3,9 @@ import logging
 import torch
 from torch import Tensor
 import platform
-from modules.sd_hijack_utils import CondFunc
+from src.pipelines.diffusion.modules.sd_hijack_utils import CondFunc
 from packaging import version
-from modules import shared
+from src.pipelines.diffusion.modules import shared
 
 log = logging.getLogger(__name__)
 

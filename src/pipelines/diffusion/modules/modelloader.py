@@ -5,9 +5,9 @@ import shutil
 import importlib
 from urllib.parse import urlparse
 
-from modules import shared
-from modules.upscaler import Upscaler, UpscalerLanczos, UpscalerNearest, UpscalerNone
-from modules.paths import script_path, models_path
+from src.pipelines.diffusion.modules import shared
+from src.pipelines.diffusion.modules.upscaler import Upscaler, UpscalerLanczos, UpscalerNearest, UpscalerNone
+from src.pipelines.diffusion.modules.paths import script_path, models_path
 
 
 def load_file_from_url(

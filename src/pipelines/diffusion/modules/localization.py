@@ -1,7 +1,7 @@
 import json
 import os
 
-from modules import errors, scripts
+from src.pipelines.diffusion.modules import errors, scripts
 
 localizations = {}
 

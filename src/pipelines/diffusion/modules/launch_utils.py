@@ -11,10 +11,10 @@ import platform
 import json
 from functools import lru_cache
 
-from modules import cmd_args, errors
-from modules.paths_internal import script_path, extensions_dir
-from modules.timer import startup_timer
-from modules import logging_config
+from src.pipelines.diffusion.modules import cmd_args, errors
+from src.pipelines.diffusion.modules.paths_internal import script_path, extensions_dir
+from src.pipelines.diffusion.modules.timer import startup_timer
+from src.pipelines.diffusion.modules import logging_config
 
 args, _ = cmd_args.parser.parse_known_args()
 logging_config.setup_logging(args.loglevel)
@@ -465,7 +465,7 @@ def start():
 
 
 def dump_sysinfo():
-    from modules import sysinfo
+    from src.pipelines.diffusion.modules import sysinfo
     import datetime
 
     text = sysinfo.get()

@@ -1,11 +1,11 @@
 import hashlib
 import os.path
 
-from modules import shared
-import modules.cache
+from src.pipelines.diffusion.modules import shared
+import src.pipelines.diffusion.modules.cache as m_cache
 
-dump_cache = modules.cache.dump_cache
-cache = modules.cache.cache
+dump_cache = m_cache.dump_cache
+cache = m_cache.cache
 
 
 def calculate_sha256(filename):

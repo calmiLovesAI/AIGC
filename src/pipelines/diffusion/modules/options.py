@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import gradio as gr
 
-from modules import errors
-from modules.shared_cmd_options import cmd_opts
+from src.pipelines.diffusion.modules import errors
+from src.pipelines.diffusion.modules.shared_cmd_options import cmd_opts
 
 
 class OptionInfo:
