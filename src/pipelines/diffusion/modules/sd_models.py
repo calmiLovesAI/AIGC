@@ -9,13 +9,13 @@ import safetensors.torch
 from omegaconf import OmegaConf, ListConfig
 from os import mkdir
 from urllib import request
-import ldm.modules.midas as midas
+import src.open_source.stablediffusion.ldm.modules.midas as midas
 
-from ldm.util import instantiate_from_config
+from src.open_source.stablediffusion.ldm.util import instantiate_from_config
 
-from modules import paths, shared, modelloader, devices, script_callbacks, sd_vae, sd_disable_initialization, errors, hashes, sd_models_config, sd_unet, sd_models_xl, cache, extra_networks, processing, lowvram, sd_hijack, patches
-from modules.timer import Timer
-import tomesd
+from src.pipelines.diffusion.modules import paths, shared, modelloader, devices, script_callbacks, sd_vae, sd_disable_initialization, errors, hashes, sd_models_config, sd_unet, sd_models_xl, cache, extra_networks, processing, lowvram, sd_hijack, patches
+from src.pipelines.diffusion.modules.timer import Timer
+import src.open_source.tomesd as tomesd
 import numpy as np
 
 model_dir = "Stable-diffusion"
@@ -472,7 +472,7 @@ def enable_midas_autodownload():
 
 
 def patch_given_betas():
-    import ldm.models.diffusion.ddpm
+    import src.open_source.stablediffusion.ldm.models.diffusion.ddpm
 
     def patched_register_schedule(*args, **kwargs):
         """a modified version of register_schedule function that converts plain list from Omegaconf into numpy"""
@@ -482,7 +482,7 @@ def patch_given_betas():
 
         original_register_schedule(*args, **kwargs)
 
-    original_register_schedule = patches.patch(__name__, ldm.models.diffusion.ddpm.DDPM, 'register_schedule', patched_register_schedule)
+    original_register_schedule = patches.patch(__name__, src.open_source.stablediffusion.ldm.models.diffusion.ddpm.DDPM, 'register_schedule', patched_register_schedule)
 
 
 def repair_config(sd_config):
@@ -598,7 +598,7 @@ def send_model_to_trash(m):
 
 
 def load_model(checkpoint_info=None, already_loaded_state_dict=None):
-    from modules import sd_hijack
+    from src.pipelines.diffusion.modules import sd_hijack
     checkpoint_info = checkpoint_info or select_checkpoint()
 
     timer = Timer()

@@ -102,7 +102,7 @@ def run(code, task):
 
 def check_versions():
     from packaging import version
-    from modules import shared
+    from src.pipelines.diffusion.modules import shared
 
     import torch
     import gradio

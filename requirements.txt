@@ -37,3 +37,4 @@ basicsr
 facelib
 facexlib
 realesrgan
+blendmodes

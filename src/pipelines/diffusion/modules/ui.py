@@ -10,25 +10,25 @@ import gradio as gr
 import gradio.utils
 import numpy as np
 from PIL import Image, PngImagePlugin  # noqa: F401
-from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
+from src.pipelines.diffusion.modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
 
-from modules import gradio_extensons  # noqa: F401
-from modules import sd_hijack, sd_models, script_callbacks, ui_extensions, deepbooru, extra_networks, ui_common, ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, ui_checkpoint_merger, scripts, sd_samplers, processing, ui_extra_networks, ui_toprow
-from modules.ui_components import FormRow, FormGroup, ToolButton, FormHTML, InputAccordion, ResizeHandleRow
-from modules.paths import script_path
-from modules.ui_common import create_refresh_button
-from modules.ui_gradio_extensions import reload_javascript
+from src.pipelines.diffusion.modules import gradio_extensons  # noqa: F401
+from src.pipelines.diffusion.modules import sd_hijack, sd_models, script_callbacks, ui_extensions, deepbooru, extra_networks, ui_common, ui_postprocessing, progress, ui_loadsave, shared_items, ui_settings, timer, sysinfo, ui_checkpoint_merger, scripts, sd_samplers, processing, ui_extra_networks, ui_toprow
+from src.pipelines.diffusion.modules.ui_components import FormRow, FormGroup, ToolButton, FormHTML, InputAccordion, ResizeHandleRow
+from src.pipelines.diffusion.modules.paths import script_path
+from src.pipelines.diffusion.modules.ui_common import create_refresh_button
+from src.pipelines.diffusion.modules.ui_gradio_extensions import reload_javascript
 
-from modules.shared import opts, cmd_opts
+from src.pipelines.diffusion.modules.shared import opts, cmd_opts
 
-import modules.generation_parameters_copypaste as parameters_copypaste
-import modules.hypernetworks.ui as hypernetworks_ui
-import modules.textual_inversion.ui as textual_inversion_ui
-import modules.textual_inversion.textual_inversion as textual_inversion
-import modules.shared as shared
-from modules import prompt_parser
-from modules.sd_hijack import model_hijack
-from modules.generation_parameters_copypaste import image_from_url_text
+import src.pipelines.diffusion.modules.generation_parameters_copypaste as parameters_copypaste
+import src.pipelines.diffusion.modules.hypernetworks.ui as hypernetworks_ui
+import src.pipelines.diffusion.modules.textual_inversion.ui as textual_inversion_ui
+import src.pipelines.diffusion.modules.textual_inversion.textual_inversion as textual_inversion
+import src.pipelines.diffusion.modules.shared as shared
+from src.pipelines.diffusion.modules import prompt_parser
+from src.pipelines.diffusion.modules.sd_hijack import model_hijack
+from src.pipelines.diffusion.modules.generation_parameters_copypaste import image_from_url_text
 
 create_setting_component = ui_settings.create_setting_component
 
@@ -252,8 +252,8 @@ def create_override_settings_dropdown(tabname, row):
 
 
 def create_ui():
-    import modules.img2img
-    import modules.txt2img
+    import src.pipelines.diffusion.modules.img2img
+    import src.pipelines.diffusion.modules.txt2img
 
     reload_javascript()
 
@@ -325,8 +325,8 @@ def create_ui():
 
                                 with FormRow(elem_id="txt2img_hires_fix_row3", variant="compact", visible=opts.hires_fix_show_sampler) as hr_sampler_container:
 
-                                    hr_checkpoint_name = gr.Dropdown(label='Hires checkpoint', elem_id="hr_checkpoint", choices=["Use same checkpoint"] + modules.sd_models.checkpoint_tiles(use_short=True), value="Use same checkpoint")
-                                    create_refresh_button(hr_checkpoint_name, modules.sd_models.list_models, lambda: {"choices": ["Use same checkpoint"] + modules.sd_models.checkpoint_tiles(use_short=True)}, "hr_checkpoint_refresh")
+                                    hr_checkpoint_name = gr.Dropdown(label='Hires checkpoint', elem_id="hr_checkpoint", choices=["Use same checkpoint"] + src.pipelines.diffusion.modules.sd_models.checkpoint_tiles(use_short=True), value="Use same checkpoint")
+                                    create_refresh_button(hr_checkpoint_name, src.pipelines.diffusion.modules.sd_models.list_models, lambda: {"choices": ["Use same checkpoint"] + src.pipelines.diffusion.modules.sd_models.checkpoint_tiles(use_short=True)}, "hr_checkpoint_refresh")
 
                                     hr_sampler_name = gr.Dropdown(label='Hires sampling method', elem_id="hr_sampler", choices=["Use same sampler"] + sd_samplers.visible_sampler_names(), value="Use same sampler")
 
@@ -379,7 +379,7 @@ def create_ui():
             txt2img_gallery, generation_info, html_info, html_log = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
             txt2img_args = dict(
-                fn=wrap_gradio_gpu_call(modules.txt2img.txt2img, extra_outputs=[None, '', '']),
+                fn=wrap_gradio_gpu_call(src.pipelines.diffusion.modules.txt2img.txt2img, extra_outputs=[None, '', '']),
                 _js="submit",
                 inputs=[
                     dummy_component,
@@ -714,7 +714,7 @@ def create_ui():
             img2img_gallery, generation_info, html_info, html_log = create_output_panel("img2img", opts.outdir_img2img_samples, toprow)
 
             img2img_args = dict(
-                fn=wrap_gradio_gpu_call(modules.img2img.img2img, extra_outputs=[None, '', '']),
+                fn=wrap_gradio_gpu_call(src.pipelines.diffusion.modules.img2img.img2img, extra_outputs=[None, '', '']),
                 _js="submit_img2img",
                 inputs=[
                     dummy_component,
@@ -867,7 +867,7 @@ def create_ui():
                     ))
 
         image.change(
-            fn=wrap_gradio_call(modules.extras.run_pnginfo),
+            fn=wrap_gradio_call(src.pipelines.diffusion.modules.extras.run_pnginfo),
             inputs=[image],
             outputs=[html, generation_info, html2],
         )
