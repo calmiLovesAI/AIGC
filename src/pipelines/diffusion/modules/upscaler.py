@@ -4,8 +4,8 @@ from abc import abstractmethod
 import PIL
 from PIL import Image
 
-import modules.shared
-from modules import modelloader, shared
+import src.pipelines.diffusion.modules.shared as m_shared
+from src.pipelines.diffusion.modules import modelloader, shared
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 NEAREST = (Image.Resampling.NEAREST if hasattr(Image, 'Resampling') else Image.NEAREST)
@@ -25,13 +25,13 @@ class Upscaler:
 
     def __init__(self, create_dirs=False):
         self.mod_pad_h = None
-        self.tile_size = modules.shared.opts.ESRGAN_tile
-        self.tile_pad = modules.shared.opts.ESRGAN_tile_overlap
-        self.device = modules.shared.device
+        self.tile_size = m_shared.opts.ESRGAN_tile
+        self.tile_pad = m_shared.opts.ESRGAN_tile_overlap
+        self.device = m_shared.device
         self.img = None
         self.output = None
         self.scale = 1
-        self.half = not modules.shared.cmd_opts.no_half
+        self.half = not m_shared.cmd_opts.no_half
         self.pre_pad = 0
         self.mod_scale = None
         self.model_download_path = None

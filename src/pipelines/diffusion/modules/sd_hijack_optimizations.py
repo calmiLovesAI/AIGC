@@ -6,17 +6,19 @@ import platform
 import torch
 from torch import einsum
 
-from ldm.util import default
+from src.open_source.stablediffusion.ldm.util import default
 from einops import rearrange
 
-from modules import shared, errors, devices, sub_quadratic_attention
-from modules.hypernetworks import hypernetwork
+import src.open_source.stablediffusion.ldm as ldm
+import src.open_source.generative_models.sgm as sgm
+from src.pipelines.diffusion.modules import shared, errors, devices, sub_quadratic_attention
+from src.pipelines.diffusion.modules.hypernetworks import hypernetwork
 
-import ldm.modules.attention
-import ldm.modules.diffusionmodules.model
+import src.open_source.stablediffusion.ldm.modules.attention
+import src.open_source.stablediffusion.ldm.modules.diffusionmodules.model
 
-import sgm.modules.attention
-import sgm.modules.diffusionmodules.model
+import src.open_source.generative_models.sgm.modules.attention
+import src.open_source.generative_models.sgm.modules.diffusionmodules.model
 
 diffusionmodules_model_AttnBlock_forward = ldm.modules.diffusionmodules.model.AttnBlock.forward
 sgm_diffusionmodules_model_AttnBlock_forward = sgm.modules.diffusionmodules.model.AttnBlock.forward

@@ -3,9 +3,9 @@ from collections import namedtuple
 import numpy as np
 import torch
 from PIL import Image
-from modules import devices, images, sd_vae_approx, sd_samplers, sd_vae_taesd, shared, sd_models
-from modules.shared import opts, state
-import k_diffusion.sampling
+from src.pipelines.diffusion.modules import devices, images, sd_vae_approx, sd_samplers, sd_vae_taesd, shared, sd_models
+from src.pipelines.diffusion.modules.shared import opts, state
+import src.open_source.k_diffusion.k_diffusion as k_diffusion
 
 
 SamplerDataTuple = namedtuple('SamplerData', ['name', 'constructor', 'aliases', 'options'])
@@ -40,7 +40,7 @@ def samples_to_images_tensor(sample, approximation=None, model=None):
     if approximation is None or (shared.state.interrupted and opts.live_preview_fast_interrupt):
         approximation = approximation_indexes.get(opts.show_progress_type, 0)
 
-        from modules import lowvram
+        from src.pipelines.diffusion.modules import lowvram
         if approximation == 0 and lowvram.is_enabled(shared.sd_model) and not shared.opts.live_preview_allow_lowvram_full:
             approximation = 1
 
@@ -325,7 +325,7 @@ class Sampler:
         if shared.opts.no_dpmpp_sde_batch_determinism:
             return None
 
-        from k_diffusion.sampling import BrownianTreeNoiseSampler
+        from src.open_source.k_diffusion.k_diffusion.sampling import BrownianTreeNoiseSampler
         sigma_min, sigma_max = sigmas[sigmas > 0].min(), sigmas.max()
         current_iter_seeds = p.all_seeds[p.iteration * p.batch_size:(p.iteration + 1) * p.batch_size]
         return BrownianTreeNoiseSampler(x, sigma_min, sigma_max, seed=current_iter_seeds)

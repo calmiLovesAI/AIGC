@@ -1,12 +1,12 @@
 import torch
 import inspect
 import sys
-from modules import devices, sd_samplers_common, sd_samplers_timesteps_impl
-from modules.sd_samplers_cfg_denoiser import CFGDenoiser
-from modules.script_callbacks import ExtraNoiseParams, extra_noise_callback
+from src.pipelines.diffusion.modules import devices, sd_samplers_common, sd_samplers_timesteps_impl
+from src.pipelines.diffusion.modules.sd_samplers_cfg_denoiser import CFGDenoiser
+from src.pipelines.diffusion.modules.script_callbacks import ExtraNoiseParams, extra_noise_callback
 
-from modules.shared import opts
-import modules.shared as shared
+from src.pipelines.diffusion.modules.shared import opts
+import src.pipelines.diffusion.modules.shared as shared
 
 samplers_timesteps = [
     ('DDIM', sd_samplers_timesteps_impl.ddim, ['ddim'], {}),
@@ -163,5 +163,5 @@ class CompVisSampler(sd_samplers_common.Sampler):
         return samples
 
 
-sys.modules['modules.sd_samplers_compvis'] = sys.modules[__name__]
+sys.modules['src.pipelines.diffusion.modules.sd_samplers_compvis'] = sys.modules[__name__]
 VanillaStableDiffusionSampler = CompVisSampler  # temp. compatibility with older extensions

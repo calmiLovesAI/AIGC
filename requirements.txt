@@ -38,3 +38,4 @@ facelib
 facexlib
 realesrgan
 blendmodes
+lark

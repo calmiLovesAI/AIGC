@@ -2,43 +2,46 @@ import torch
 from torch.nn.functional import silu
 from types import MethodType
 
-from modules import devices, sd_hijack_optimizations, shared, script_callbacks, errors, sd_unet, patches
-from modules.hypernetworks import hypernetwork
-from modules.shared import cmd_opts
-from modules import sd_hijack_clip, sd_hijack_open_clip, sd_hijack_unet, sd_hijack_xlmr, xlmr, xlmr_m18
+from src.pipelines.diffusion.modules import devices, sd_hijack_optimizations, shared, script_callbacks, errors, sd_unet, patches
+from src.pipelines.diffusion.modules.hypernetworks import hypernetwork
+from src.pipelines.diffusion.modules.shared import cmd_opts
+from src.pipelines.diffusion.modules import sd_hijack_clip, sd_hijack_open_clip, sd_hijack_unet, sd_hijack_xlmr, xlmr, xlmr_m18
 
-import ldm.modules.attention
-import ldm.modules.diffusionmodules.model
-import ldm.modules.diffusionmodules.openaimodel
-import ldm.models.diffusion.ddpm
-import ldm.models.diffusion.ddim
-import ldm.models.diffusion.plms
-import ldm.modules.encoders.modules
+import src.open_source.stablediffusion.ldm.modules.attention
+import src.open_source.stablediffusion.ldm.modules.diffusionmodules.model
+import src.open_source.stablediffusion.ldm.modules.diffusionmodules.openaimodel
+import src.open_source.stablediffusion.ldm.models.diffusion.ddpm
+import src.open_source.stablediffusion.ldm.models.diffusion.ddim
+import src.open_source.stablediffusion.ldm.models.diffusion.plms
+import src.open_source.stablediffusion.ldm.modules.encoders.modules
 
-import sgm.modules.attention
-import sgm.modules.diffusionmodules.model
-import sgm.modules.diffusionmodules.openaimodel
-import sgm.modules.encoders.modules
+import src.open_source.stablediffusion.ldm as ldm
+import src.open_source.generative_models.sgm as sgm
 
-attention_CrossAttention_forward = ldm.modules.attention.CrossAttention.forward
-diffusionmodules_model_nonlinearity = ldm.modules.diffusionmodules.model.nonlinearity
-diffusionmodules_model_AttnBlock_forward = ldm.modules.diffusionmodules.model.AttnBlock.forward
+import src.open_source.generative_models.sgm.modules.attention
+import src.open_source.generative_models.sgm.modules.diffusionmodules.model
+import src.open_source.generative_models.sgm.modules.diffusionmodules.openaimodel
+import src.open_source.generative_models.sgm.modules.encoders.modules
+
+attention_CrossAttention_forward = src.open_source.stablediffusion.ldm.modules.attention.CrossAttention.forward
+diffusionmodules_model_nonlinearity = src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.nonlinearity
+diffusionmodules_model_AttnBlock_forward = src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.AttnBlock.forward
 
 # new memory efficient cross attention blocks do not support hypernets and we already
 # have memory efficient cross attention anyway, so this disables SD2.0's memory efficient cross attention
-ldm.modules.attention.MemoryEfficientCrossAttention = ldm.modules.attention.CrossAttention
-ldm.modules.attention.BasicTransformerBlock.ATTENTION_MODES["softmax-xformers"] = ldm.modules.attention.CrossAttention
+src.open_source.stablediffusion.ldm.modules.attention.MemoryEfficientCrossAttention = src.open_source.stablediffusion.ldm.modules.attention.CrossAttention
+src.open_source.stablediffusion.ldm.modules.attention.BasicTransformerBlock.ATTENTION_MODES["softmax-xformers"] = src.open_source.stablediffusion.ldm.modules.attention.CrossAttention
 
 # silence new console spam from SD2
-ldm.modules.attention.print = shared.ldm_print
-ldm.modules.diffusionmodules.model.print = shared.ldm_print
-ldm.util.print = shared.ldm_print
-ldm.models.diffusion.ddpm.print = shared.ldm_print
+src.open_source.stablediffusion.ldm.modules.attention.print = shared.ldm_print
+src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.print = shared.ldm_print
+src.open_source.stablediffusion.ldm.util.print = shared.ldm_print
+src.open_source.stablediffusion.ldm.models.diffusion.ddpm.print = shared.ldm_print
 
 optimizers = []
 current_optimizer: sd_hijack_optimizations.SdOptimization = None
 
-ldm_patched_forward = sd_unet.create_unet_forward(ldm.modules.diffusionmodules.openaimodel.UNetModel.forward)
+ldm_patched_forward = sd_unet.create_unet_forward(ldm.modules.diffusionmodules.openaimodel.UNetModel)
 ldm_original_forward = patches.patch(__file__, ldm.modules.diffusionmodules.openaimodel.UNetModel, "forward", ldm_patched_forward)
 
 sgm_patched_forward = sd_unet.create_unet_forward(sgm.modules.diffusionmodules.openaimodel.UNetModel.forward)
@@ -66,11 +69,11 @@ def apply_optimizations(option=None):
         current_optimizer = None
         return ''
 
-    ldm.modules.diffusionmodules.model.nonlinearity = silu
-    ldm.modules.diffusionmodules.openaimodel.th = sd_hijack_unet.th
+    src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.nonlinearity = silu
+    src.open_source.stablediffusion.ldm.modules.diffusionmodules.openaimodel.th = sd_hijack_unet.th
 
-    sgm.modules.diffusionmodules.model.nonlinearity = silu
-    sgm.modules.diffusionmodules.openaimodel.th = sd_hijack_unet.th
+    src.open_source.generative_models.sgm.modules.diffusionmodules.model.nonlinearity = silu
+    src.open_source.generative_models.sgm.modules.diffusionmodules.openaimodel.th = sd_hijack_unet.th
 
     if current_optimizer is not None:
         current_optimizer.undo()
@@ -101,13 +104,13 @@ def apply_optimizations(option=None):
 
 
 def undo_optimizations():
-    ldm.modules.diffusionmodules.model.nonlinearity = diffusionmodules_model_nonlinearity
-    ldm.modules.attention.CrossAttention.forward = hypernetwork.attention_CrossAttention_forward
-    ldm.modules.diffusionmodules.model.AttnBlock.forward = diffusionmodules_model_AttnBlock_forward
+    src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.nonlinearity = diffusionmodules_model_nonlinearity
+    src.open_source.stablediffusion.ldm.modules.attention.CrossAttention.forward = hypernetwork.attention_CrossAttention_forward
+    src.open_source.stablediffusion.ldm.modules.diffusionmodules.model.AttnBlock.forward = diffusionmodules_model_AttnBlock_forward
 
-    sgm.modules.diffusionmodules.model.nonlinearity = diffusionmodules_model_nonlinearity
-    sgm.modules.attention.CrossAttention.forward = hypernetwork.attention_CrossAttention_forward
-    sgm.modules.diffusionmodules.model.AttnBlock.forward = diffusionmodules_model_AttnBlock_forward
+    src.open_source.generative_models.sgm.modules.diffusionmodules.model.nonlinearity = diffusionmodules_model_nonlinearity
+    src.open_source.generative_models.sgm.modules.attention.CrossAttention.forward = hypernetwork.attention_CrossAttention_forward
+    src.open_source.generative_models.sgm.modules.diffusionmodules.model.AttnBlock.forward = diffusionmodules_model_AttnBlock_forward
 
 
 def fix_checkpoint():
@@ -173,12 +176,12 @@ class StableDiffusionModelHijack:
     optimization_method = None
 
     def __init__(self):
-        import modules.textual_inversion.textual_inversion
+        import src.pipelines.diffusion.modules.textual_inversion.textual_inversion
 
         self.extra_generation_params = {}
         self.comments = []
 
-        self.embedding_db = modules.textual_inversion.textual_inversion.EmbeddingDatabase()
+        self.embedding_db = src.pipelines.diffusion.modules.textual_inversion.textual_inversion.EmbeddingDatabase()
         self.embedding_db.add_embedding_dir(cmd_opts.embeddings_dir)
 
     def apply_optimizations(self, option=None):
@@ -260,13 +263,13 @@ class StableDiffusionModelHijack:
 
         self.layers = flatten(m)
 
-        import modules.models.diffusion.ddpm_edit
+        import src.pipelines.diffusion.modules.models.diffusion.ddpm_edit
 
-        if isinstance(m, ldm.models.diffusion.ddpm.LatentDiffusion):
+        if isinstance(m, src.open_source.stablediffusion.ldm.models.diffusion.ddpm.LatentDiffusion):
             sd_unet.original_forward = ldm_original_forward
-        elif isinstance(m, modules.models.diffusion.ddpm_edit.LatentDiffusion):
+        elif isinstance(m, src.pipelines.diffusion.modules.models.diffusion.ddpm_edit.LatentDiffusion):
             sd_unet.original_forward = ldm_original_forward
-        elif isinstance(m, sgm.models.diffusion.DiffusionEngine):
+        elif isinstance(m, src.open_source.generative_models.sgm.models.diffusion.DiffusionEngine):
             sd_unet.original_forward = sgm_original_forward
         else:
             sd_unet.original_forward = None

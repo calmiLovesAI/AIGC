@@ -2,8 +2,8 @@ import os
 
 import gradio as gr
 
-from modules import errors, shared
-from modules.paths_internal import script_path
+from src.pipelines.diffusion.modules import errors, shared
+from src.pipelines.diffusion.modules.paths_internal import script_path
 
 
 # https://huggingface.co/datasets/freddyaboulton/gradio-theme-subdomains/resolve/main/subdomains.json
