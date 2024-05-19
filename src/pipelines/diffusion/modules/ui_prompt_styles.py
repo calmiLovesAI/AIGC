@@ -1,6 +1,6 @@
 import gradio as gr
 
-from modules import shared, ui_common, ui_components, styles
+from src.pipelines.diffusion.modules import shared, ui_common, ui_components, styles
 
 styles_edit_symbol = '\U0001f58c\uFE0F'  # 🖌️
 styles_materialize_symbol = '\U0001f4cb'  # 📋

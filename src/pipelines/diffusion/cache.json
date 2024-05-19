@@ -1,0 +1,16 @@
+{
+    "safetensors-metadata": {
+        "checkpoint/v1-5-pruned-emaonly.safetensors": {
+            "mtime": 1716117089.2443967,
+            "value": {
+                "format": "pt"
+            }
+        }
+    },
+    "hashes": {
+        "checkpoint/v1-5-pruned-emaonly.safetensors": {
+            "mtime": 1716117089.2443967,
+            "sha256": "6ce0161689b3853acaa03779ec93eafe75a02f4ced659bee03f50797806fa2fa"
+        }
+    }
+}

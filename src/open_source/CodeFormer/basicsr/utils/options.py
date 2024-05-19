@@ -2,7 +2,7 @@ import yaml
 import time
 from collections import OrderedDict
 from os import path as osp
-from basicsr.utils.misc import get_time_str
+from src.open_source.CodeFormer.basicsr.utils.misc import get_time_str
 
 def ordered_yaml():
     """Support OrderedDict for yaml.

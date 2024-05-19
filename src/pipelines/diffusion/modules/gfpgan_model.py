@@ -113,7 +113,7 @@ def setup_model(dirname):
         have_gfpgan = True
         gfpgan_constructor = GFPGANer
 
-        class FaceRestorerGFPGAN(modules.face_restoration.FaceRestoration):
+        class FaceRestorerGFPGAN(src.pipelines.diffusion.modules.face_restoration.FaceRestoration):
             def name(self):
                 return "GFPGAN"
 

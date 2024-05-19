@@ -3,10 +3,10 @@ from collections import OrderedDict
 from os import path as osp
 from tqdm import tqdm
 
-from basicsr.archs import build_network
-from basicsr.metrics import calculate_metric
-from basicsr.utils import get_root_logger, imwrite, tensor2img
-from basicsr.utils.registry import MODEL_REGISTRY
+from src.open_source.CodeFormer.basicsr.archs import build_network
+from src.open_source.CodeFormer.basicsr.metrics import calculate_metric
+from src.open_source.CodeFormer.basicsr.utils import get_root_logger, imwrite, tensor2img
+from src.open_source.CodeFormer.basicsr.utils.registry import MODEL_REGISTRY
 import torch.nn.functional as F
 from .sr_model import SRModel
 

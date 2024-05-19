@@ -15,6 +15,8 @@ import cv2
 from skimage import exposure
 from typing import Any
 
+import src.pipelines.diffusion.modules as modules
+
 from src.pipelines.diffusion.modules import devices, prompt_parser, masking, sd_samplers, lowvram, generation_parameters_copypaste, extra_networks, sd_vae_approx, scripts, sd_samplers_common, sd_unet, errors, rng
 from src.pipelines.diffusion.modules.rng import slerp # noqa: F401
 from src.pipelines.diffusion.modules.sd_hijack import model_hijack

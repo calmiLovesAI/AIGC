@@ -1,8 +1,8 @@
 import os
 import gradio as gr
 
-from modules import localization, shared, scripts
-from modules.paths import script_path, data_path, cwd
+from src.pipelines.diffusion.modules import localization, shared, scripts
+from src.pipelines.diffusion.modules.paths import script_path, data_path, cwd
 
 
 def webpath(fn):

@@ -41,7 +41,7 @@ src.open_source.stablediffusion.ldm.models.diffusion.ddpm.print = shared.ldm_pri
 optimizers = []
 current_optimizer: sd_hijack_optimizations.SdOptimization = None
 
-ldm_patched_forward = sd_unet.create_unet_forward(ldm.modules.diffusionmodules.openaimodel.UNetModel)
+ldm_patched_forward = sd_unet.create_unet_forward(ldm.modules.diffusionmodules.openaimodel.UNetModel.forward)
 ldm_original_forward = patches.patch(__file__, ldm.modules.diffusionmodules.openaimodel.UNetModel, "forward", ldm_patched_forward)
 
 sgm_patched_forward = sd_unet.create_unet_forward(sgm.modules.diffusionmodules.openaimodel.UNetModel.forward)

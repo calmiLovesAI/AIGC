@@ -12,3 +12,4 @@ __pycache__
 /experiments/*
 !/experiments/config.py
 /outputs/
+/src/pipelines/diffusion/models/*

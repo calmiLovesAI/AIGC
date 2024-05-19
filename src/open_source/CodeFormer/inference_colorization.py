@@ -4,10 +4,10 @@ import argparse
 import glob
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
-from basicsr.utils.download_util import load_file_from_url
-from basicsr.utils.misc import get_device
-from basicsr.utils.registry import ARCH_REGISTRY
+from src.open_source.CodeFormer.basicsr.utils import imwrite, img2tensor, tensor2img
+from src.open_source.CodeFormer.basicsr.utils.download_util import load_file_from_url
+from src.open_source.CodeFormer.basicsr.utils.misc import get_device
+from src.open_source.CodeFormer.basicsr.utils.registry import ARCH_REGISTRY
 
 pretrain_model_url = 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer_colorization.pth'
 

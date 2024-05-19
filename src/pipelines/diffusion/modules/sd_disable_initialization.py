@@ -1,9 +1,9 @@
-import ldm.modules.encoders.modules
+import src.open_source.stablediffusion.ldm as ldm
 import open_clip
 import torch
 import transformers.utils.hub
 
-from modules import shared
+from src.pipelines.diffusion.modules import shared
 
 
 class ReplaceHelper:

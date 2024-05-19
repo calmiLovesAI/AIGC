@@ -4,11 +4,11 @@ import os
 import torch
 from torchvision.transforms.functional import normalize
 
-from facelib.detection import init_detection_model
-from facelib.parsing import init_parsing_model
-from facelib.utils.misc import img2tensor, imwrite, is_gray, bgr2gray, adain_npy
-from basicsr.utils.download_util import load_file_from_url
-from basicsr.utils.misc import get_device
+from ..detection import init_detection_model
+from ..parsing import init_parsing_model
+from .misc import img2tensor, imwrite, is_gray, bgr2gray, adain_npy
+from src.open_source.CodeFormer.basicsr.utils.download_util import load_file_from_url
+from src.open_source.CodeFormer.basicsr.utils.misc import get_device
 
 dlib_model_url = {
     'face_detector': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/mmod_human_face_detector-4cb19393.dat',

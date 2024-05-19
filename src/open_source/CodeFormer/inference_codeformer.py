@@ -4,13 +4,13 @@ import argparse
 import glob
 import torch
 from torchvision.transforms.functional import normalize
-from basicsr.utils import imwrite, img2tensor, tensor2img
-from basicsr.utils.download_util import load_file_from_url
-from basicsr.utils.misc import gpu_is_available, get_device
-from facelib.utils.face_restoration_helper import FaceRestoreHelper
-from facelib.utils.misc import is_gray
+from .basicsr.utils import imwrite, img2tensor, tensor2img
+from .basicsr.utils.download_util import load_file_from_url
+from .basicsr.utils.misc import gpu_is_available, get_device
+from .facelib.utils.face_restoration_helper import FaceRestoreHelper
+from .facelib.utils.misc import is_gray
 
-from basicsr.utils.registry import ARCH_REGISTRY
+from .basicsr.utils.registry import ARCH_REGISTRY
 
 pretrain_model_url = {
     'restoration': 'https://github.com/sczhou/CodeFormer/releases/download/v0.1.0/codeformer.pth',

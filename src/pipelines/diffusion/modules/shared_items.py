@@ -99,7 +99,7 @@ ui_reorder_categories_builtin_items = [
 
 
 def ui_reorder_categories():
-    from modules import scripts
+    from src.pipelines.diffusion.modules import scripts
 
     yield from ui_reorder_categories_builtin_items
 

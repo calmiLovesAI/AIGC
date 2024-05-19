@@ -1,6 +1,6 @@
 import gradio as gr
-from modules import scripts, shared, ui_common, postprocessing, call_queue, ui_toprow
-import modules.generation_parameters_copypaste as parameters_copypaste
+from src.pipelines.diffusion.modules import scripts, shared, ui_common, postprocessing, call_queue, ui_toprow
+import src.pipelines.diffusion.modules.generation_parameters_copypaste as parameters_copypaste
 
 
 def create_ui():

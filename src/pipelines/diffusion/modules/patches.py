@@ -16,7 +16,6 @@ def patch(key, obj, field, replacement):
     Returns:
         the original function
     """
-    print(originals)
     patch_key = (obj, field)
     if patch_key in originals[key]:
         raise RuntimeError(f"patch for {field} is already applied")

@@ -10,6 +10,7 @@ import gradio as gr
 import gradio.utils
 import numpy as np
 from PIL import Image, PngImagePlugin  # noqa: F401
+import src.pipelines.diffusion.modules as modules
 from src.pipelines.diffusion.modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, wrap_gradio_call
 
 from src.pipelines.diffusion.modules import gradio_extensons  # noqa: F401
@@ -33,7 +34,7 @@ from src.pipelines.diffusion.modules.generation_parameters_copypaste import imag
 create_setting_component = ui_settings.create_setting_component
 
 warnings.filterwarnings("default" if opts.show_warnings else "ignore", category=UserWarning)
-warnings.filterwarnings("default" if opts.show_gradio_deprecation_warnings else "ignore", category=gr.deprecation.GradioDeprecationWarning)
+warnings.filterwarnings("default" if opts.show_gradio_deprecation_warnings else "ignore", category=UserWarning)
 
 # this is a fix for Windows users. Without it, javascript files will be served with text/html content-type and the browser will not show any UI
 mimetypes.init()
@@ -867,7 +868,7 @@ def create_ui():
                     ))
 
         image.change(
-            fn=wrap_gradio_call(src.pipelines.diffusion.modules.extras.run_pnginfo),
+            fn=wrap_gradio_call(modules.extras.run_pnginfo),
             inputs=[image],
             outputs=[html, generation_info, html2],
         )

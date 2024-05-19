@@ -3,8 +3,8 @@ from collections import namedtuple
 
 import torch
 
-from modules import prompt_parser, devices, sd_hijack
-from modules.shared import opts
+from src.pipelines.diffusion.modules import prompt_parser, devices, sd_hijack
+from src.pipelines.diffusion.modules.shared import opts
 
 
 class PromptChunk:

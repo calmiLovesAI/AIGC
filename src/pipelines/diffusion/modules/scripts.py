@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import gradio as gr
 
-from modules import shared, paths, script_callbacks, extensions, script_loading, scripts_postprocessing, errors, timer
+from src.pipelines.diffusion.modules import shared, paths, script_callbacks, extensions, script_loading, scripts_postprocessing, errors, timer
 
 AlwaysVisible = object()
 
@@ -511,7 +511,7 @@ class ScriptRunner:
         """dict of callbacks to be called after an element is created; key=elem_id, value=list of callbacks"""
 
     def initialize_scripts(self, is_img2img):
-        from modules import scripts_auto_postprocessing
+        from src.pipelines.diffusion.modules import scripts_auto_postprocessing
 
         self.scripts.clear()
         self.alwayson_scripts.clear()
@@ -570,7 +570,7 @@ class ScriptRunner:
             errors.report(f"Error creating UI for {script.name}: ", exc_info=True)
 
     def create_script_ui_inner(self, script):
-        import modules.api.models as api_models
+        import src.pipelines.diffusion.modules.api.models as api_models
 
         controls = wrap_call(script.ui, script.filename, "ui", script.is_img2img)
 

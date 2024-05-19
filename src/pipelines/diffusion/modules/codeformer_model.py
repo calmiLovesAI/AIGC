@@ -29,8 +29,8 @@ def setup_model(dirname):
         from torchvision.transforms.functional import normalize
         from src.pipelines.diffusion.modules.codeformer.codeformer_arch import CodeFormer
         from basicsr.utils import img2tensor, tensor2img
-        from src.facelib.utils.face_restoration_helper import FaceRestoreHelper
-        from src.facelib.detection.retinaface import retinaface
+        from src.open_source.CodeFormer.facelib.utils.face_restoration_helper import FaceRestoreHelper
+        from src.open_source.CodeFormer.facelib.detection.retinaface import retinaface
 
         net_class = CodeFormer
 
